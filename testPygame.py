@@ -20,6 +20,13 @@ class Main:
         self.gradientSurface = None
         self.gradientBounds = None
 
+        self.joysticks = []
+        self.eyeShiftRatioX = 0
+        self.eyeShiftRatioY = 0
+
+        self.importSprites()
+
+    def importSprites(self):
         # SPRITES DES YEUX
         ## Oeuil Gauche Fond
         self.leftEyeImage = pygame.image.load("source/vox_blazed_lefteye_bg.svg")
@@ -51,15 +58,20 @@ class Main:
         self.pupilImage = pygame.image.load("source/vox_pupil.svg")
         self.pupilImage = pygame.transform.scale(self.pupilImage, self.ur([61, 91], x=True, y=True))
 
-
-
     def handling_events(self):
         for event in pygame.event.get():
-            if event.type == pygame.QUIT: ##Si le joueur appuie sur la croix de la fenetre
+            ##Si le joueur appuie sur la croix de la fenetre
+            if event.type == pygame.QUIT:
                 self.isRunning = False ##Le jeu s'arrete
 
-    # def update(self):
-    #     # actualiser ce qui doit être actualisé
+            if event.type == pygame.JOYDEVICEADDED:
+                joy = pygame.joystick.Joystick(event.device_index)
+                self.joysticks.append(joy)
+
+    def update(self):
+        for joystick in self.joysticks:
+            self.eyeShiftRatioX = joystick.get_axis(0)
+            self.eyeShiftRatioY = joystick.get_axis(1)
 
     def display(self):
         # LE FOND
@@ -74,8 +86,14 @@ class Main:
         pygame.draw.rect(self.screen, (214, 28, 41), (0, 0, self.screen.get_width(), self.screen.get_height()), int(self.ur(10, y=True)))
 
 
+        # Afficher les FPS
+        self.font = pygame.font.Font("source/inter.ttf", 32)
+        self.fpsText = self.font.render(str(int(self.clock.get_fps())) + " FPS", True, (255, 255, 255))
+
+        self.screen.blit(self.fpsText, self.fpsText.get_rect())
+
         # Afficher les changements
-        pygame.display.flip()
+        pygame.display.update()
 
     def showBackground(self):
         # --- FOND BLEU UNI ---
@@ -96,22 +114,20 @@ class Main:
             self.gradientBounds = int(2 * self.screen.get_height())
             self.gradientSurface = pygame.Surface((self.gradientBounds, self.gradientBounds), pygame.SRCALPHA)
             center = [self.gradientBounds/2, self.gradientBounds/2]
-            for x in range(self.gradientBounds):
-                for y in range(self.gradientBounds):
-                    ## √( (Px-Cx)² + (Py-Cy)² )
-                    m = math.sqrt( ( x - center[0] )**2 + ( y - center[1])**2 ) ## Distance du centre
-
-                    opacityPercentage = ( 1 - ( m / (self.gradientBounds/2) ) ) * 1.5
-                    if opacityPercentage < 0: opacityPercentage = 0
-                    if opacityPercentage > 1: opacityPercentage = 1
-                    opacity =  opacityPercentage * 255
-
-                    self.gradientSurface.set_at((x, y), (74, 158, 189, opacity))
+            for radius in range(self.gradientBounds // 2, 0, -1):
+                opacity = 255 * (1 - radius / (self.gradientBounds // 2))
+                color = (74, 158, 189, int(opacity))
+                pygame.draw.circle(self.gradientSurface, color, center, radius)
         self.screen.blit(self.gradientSurface, (self.screen.get_width()/2 - self.gradientBounds/2, self.screen.get_height()/2 - self.gradientBounds/2))
 
     def showBlazedFace(self):
         # LEFT EYE
-        self.leftEyeImage.blit(self.pupilImage, (self.leftEyeImage.get_width() / 2, self.leftEyeImage.get_height() - self.pupilImage.get_height()))
+        pupilPosition = [self.leftEyeImage.get_width() / 2, self.leftEyeImage.get_height()/2 - self.pupilImage.get_height()/2]
+        pupilPosition[0] += self.eyeShiftRatioX * (self.leftEyeImage.get_width() / 2)
+        pupilPosition[1] += self.eyeShiftRatioY * (self.leftEyeImage.get_height() / 2)
+
+        self.leftEyeImage.fill((255, 0, 66))
+        self.leftEyeImage.blit(self.pupilImage, pupilPosition)
         self.leftEyeImage.blit(self.leftEyeBorder, (0, 0))
 
         result = pygame.Surface(self.leftEyeImage.get_size(), pygame.SRCALPHA)
@@ -128,7 +144,12 @@ class Main:
 
 
         # RIGHT EYE
-        self.rightEyeImage.blit(self.pupilImage, (self.leftEyeImage.get_width() / 2 - self.pupilImage.get_width(), self.rightEyeImage.get_height() - self.pupilImage.get_height()))
+        pupilPosition = [self.rightEyeImage.get_width() / 2 - self.pupilImage.get_width(), self.rightEyeImage.get_height()/2 - self.pupilImage.get_height()/2]
+        pupilPosition[0] += self.eyeShiftRatioX * (self.rightEyeImage.get_width() / 2)
+        pupilPosition[1] += self.eyeShiftRatioY * (self.rightEyeImage.get_height() / 2)
+
+        self.rightEyeImage.fill((255, 0, 66))
+        self.rightEyeImage.blit(self.pupilImage, pupilPosition)
         self.rightEyeImage.blit(self.rightEyeBorder, (0, 0))
 
         result = pygame.Surface(self.rightEyeImage.get_size(), pygame.SRCALPHA)
@@ -149,26 +170,30 @@ class Main:
             # self.update()
             self.display()
 
-            self.clock.tick(30)
+            self.clock.tick(60)
+            print(self.clock.get_fps())
             self.firstRun = False
 
     def ur(self, value, x=False, y=False):
-        ''' Universal Ratio from 1920 x 1080 to screen size '''
-        if x:
-            currentValue = value if not y else value[0] ## Au cas où si c'est une liste
-            finalValue = (currentValue/1920) * self.screen.get_width()
-            if not y : return finalValue
-            else : second = finalValue;
-        if y:
-            currentValue = value if not x else value[1] ## Au cas où si c'est une liste
-            finalValue = (currentValue/1080) * self.screen.get_height()
-            return finalValue if not x else (second, finalValue)
+        if self.screen.get_width() != 1920:
+            ''' Universal Ratio from 1920 x 1080 to screen size '''
+            if x:
+                currentValue = value if not y else value[0] ## Au cas où si c'est une liste
+                finalValue = (currentValue/1920) * self.screen.get_width()
+                if not y : return finalValue
+                else : second = finalValue;
+            if y:
+                currentValue = value if not x else value[1] ## Au cas où si c'est une liste
+                finalValue = (currentValue/1080) * self.screen.get_height()
+                return finalValue if not x else (second, finalValue)
+        else : return value
 
 pygame.init()
 
 # à la fin faudra mettre (0,0) pour le fullscreen
 # c'est en 16:9
 screen = pygame.display.set_mode((800, 450))
+# screen = pygame.display.set_mode((1920, 1080))
 # screen = pygame.display.set_mode((0, 0))
 instance = Main(screen)
 instance.run()
