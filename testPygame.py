@@ -86,11 +86,11 @@ class Main:
         pygame.draw.rect(self.screen, (214, 28, 41), (0, 0, self.screen.get_width(), self.screen.get_height()), int(self.ur(10, y=True)))
 
 
-        # Afficher les FPS
-        self.font = pygame.font.Font("source/inter.ttf", 32)
-        self.fpsText = self.font.render(str(int(self.clock.get_fps())) + " FPS", True, (255, 255, 255))
-
-        self.screen.blit(self.fpsText, self.fpsText.get_rect())
+        # # Afficher les FPS
+        # self.font = pygame.font.Font("source/inter.ttf", 32)
+        # self.fpsText = self.font.render(str(int(self.clock.get_fps())) + " FPS", True, (255, 255, 255))
+        #
+        # self.screen.blit(self.fpsText, self.fpsText.get_rect())
 
         # Afficher les changements
         pygame.display.update()
