@@ -1,5 +1,12 @@
-import pygame
-import math
+import pygame, math
+from pyvidplayer import Video
+from enum import Enum
+
+
+class voxState(Enum):
+    BLAZED = 0
+    FULLSCREENHYPNOSE = 1
+    MIKUVIDEO = 2
 
 class Main:
     def __init__(self, screen):
@@ -24,39 +31,59 @@ class Main:
         self.eyeShiftRatioX = 0
         self.eyeShiftRatioY = 0
 
+        self.currentState = voxState.BLAZED
+
+        self.hypnoseShiftRatio = 0
+
         self.importSprites()
+        self.importHatsuneMikuVideo()
 
     def importSprites(self):
         # SPRITES DES YEUX
         ## Oeuil Gauche Fond
-        self.leftEyeImage = pygame.image.load("source/vox_blazed_lefteye_bg.svg")
+        self.leftEyeImage = pygame.image.load("source/vox_blazed_lefteye_bg.svg").convert_alpha()
         self.leftEyeImage = pygame.transform.scale(self.leftEyeImage, self.ur([711, 223], x=True, y=True))
-        self.leftEyeMask = pygame.mask.from_surface(self.leftEyeImage)
+        self.leftEyeMask = pygame.image.load("source/vox_blazed_lefteye_mask.svg").convert_alpha()
+        self.leftEyeMask = pygame.transform.scale(self.leftEyeMask, self.ur([711, 223], x=True, y=True))
 
         ## Oeuil Gauche Contour
-        self.leftEyeBorder = pygame.image.load("source/vox_blazed_lefteye_border.svg")
+        self.leftEyeBorder = pygame.image.load("source/vox_blazed_lefteye_border.svg").convert_alpha()
         self.leftEyeBorder = pygame.transform.scale(self.leftEyeBorder, self.ur([711, 223], x=True, y=True))
 
         ## Sourcil Droit
-        self.leftEyebrow = pygame.image.load("source/vox_blazed_lefteyebrow.svg")
+        self.leftEyebrow = pygame.image.load("source/vox_blazed_lefteyebrow.svg").convert_alpha()
         self.leftEyebrow = pygame.transform.scale(self.leftEyebrow, self.ur([719, 219], x=True, y=True))
 
         ## Oeuil Droit Fond
-        self.rightEyeImage = pygame.image.load("source/vox_blazed_righteye_bg.svg")
+        self.rightEyeImage = pygame.image.load("source/vox_blazed_righteye_bg.svg").convert_alpha()
         self.rightEyeImage = pygame.transform.scale(self.rightEyeImage, self.ur([734, 253], x=True, y=True))
-        self.rightEyeMask = pygame.mask.from_surface(self.rightEyeImage)
+        self.rightEyeMask = pygame.image.load("source/vox_blazed_righteye_mask.svg").convert_alpha()
+        self.rightEyeMask = pygame.transform.scale(self.rightEyeMask, self.ur([734, 253], x=True, y=True))
 
         ## Oeuil Droit Contour
-        self.rightEyeBorder = pygame.image.load("source/vox_blazed_righteye_border.svg")
+        self.rightEyeBorder = pygame.image.load("source/vox_blazed_righteye_border.svg").convert_alpha()
         self.rightEyeBorder = pygame.transform.scale(self.rightEyeBorder, self.ur([734, 253], x=True, y=True))
 
         ## Sourcil Droit
-        self.rightEyebrow = pygame.image.load("source/vox_blazed_righteyebrow.svg")
+        self.rightEyebrow = pygame.image.load("source/vox_blazed_righteyebrow.svg").convert_alpha()
         self.rightEyebrow = pygame.transform.scale(self.rightEyebrow, self.ur([735, 266], x=True, y=True))
 
         ## Pupille
-        self.pupilImage = pygame.image.load("source/vox_pupil.svg")
+        self.pupilImage = pygame.image.load("source/vox_pupil.svg").convert_alpha()
         self.pupilImage = pygame.transform.scale(self.pupilImage, self.ur([61, 91], x=True, y=True))
+
+        ## Bouche
+        self.mouthImage = pygame.image.load("source/vox_blazed_mouth.svg").convert_alpha()
+        self.mouthImage = pygame.transform.scale(self.mouthImage, self.ur([478, 224], x=True, y=True))
+
+        ## Eclair d'hypnose
+        self.hypnosisPupil = pygame.image.load("source/vox_hypnosis_lightning.svg").convert_alpha()
+        self.hypnosisPupil = pygame.transform.scale(self.hypnosisPupil, self.ur([215, 390], x=True, y=True))
+
+    def importHatsuneMikuVideo(self):
+        self.hatsuneVideo = Video("source/hatsuneMiku.mp4")
+        self.hatsuneVideo.set_size((self.screen.get_width(), self.screen.get_height()))
+        self.hatsuneVideo.pause()
 
     def handling_events(self):
         for event in pygame.event.get():
@@ -67,6 +94,17 @@ class Main:
             if event.type == pygame.JOYDEVICEADDED:
                 joy = pygame.joystick.Joystick(event.device_index)
                 self.joysticks.append(joy)
+
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_1 and self.currentState != voxState.BLAZED: ## 1
+                    self.currentState = voxState.BLAZED
+                    self.hatsuneVideo.pause()
+                if event.key == pygame.K_2 and self.currentState != voxState.FULLSCREENHYPNOSE: ## 1
+                    self.currentState = voxState.FULLSCREENHYPNOSE
+                    self.hatsuneVideo.pause()
+                if event.key == pygame.K_3 and self.currentState != voxState.MIKUVIDEO: ## 1
+                    self.currentState = voxState.MIKUVIDEO
+                    self.hatsuneVideo.resume()
 
     def update(self):
         for joystick in self.joysticks:
@@ -79,8 +117,12 @@ class Main:
 
 
         ## LES VISAGES
-        self.showBlazedFace()
-
+        if self.currentState == voxState.BLAZED:
+            self.showBlazedFace()
+        elif self.currentState == voxState.FULLSCREENHYPNOSE:
+            self.showHypnoticFace()
+        elif self.currentState == voxState.MIKUVIDEO:
+            self.showHatsuneMiku()
 
         # CONTOUR ROUGE
         pygame.draw.rect(self.screen, (214, 28, 41), (0, 0, self.screen.get_width(), self.screen.get_height()), int(self.ur(10, y=True)))
@@ -128,14 +170,10 @@ class Main:
 
         self.leftEyeImage.fill((255, 0, 66))
         self.leftEyeImage.blit(self.pupilImage, pupilPosition)
-        self.leftEyeImage.blit(self.leftEyeBorder, (0, 0))
+        self.leftEyeImage.blit(self.leftEyeBorder, (0,0))
 
-        result = pygame.Surface(self.leftEyeImage.get_size(), pygame.SRCALPHA)
-
-        for x in range(self.leftEyeImage.get_width()):
-            for y in range(self.leftEyeImage.get_height()):
-                if self.leftEyeMask.get_at((x, y)):
-                    result.set_at((x, y), self.leftEyeImage.get_at((x, y)))
+        result = self.leftEyeMask.copy()
+        result.blit(self.leftEyeImage, (0,0), None, pygame.BLEND_RGBA_MULT)
 
         self.screen.blit(result, self.ur([111, 409], x=True, y=True))
 
@@ -152,26 +190,50 @@ class Main:
         self.rightEyeImage.blit(self.pupilImage, pupilPosition)
         self.rightEyeImage.blit(self.rightEyeBorder, (0, 0))
 
-        result = pygame.Surface(self.rightEyeImage.get_size(), pygame.SRCALPHA)
-
-        for x in range(self.rightEyeImage.get_width()):
-            for y in range(self.rightEyeImage.get_height()):
-                if self.rightEyeMask.get_at((x, y)):
-                    result.set_at((x, y), self.rightEyeImage.get_at((x, y)))
+        result = self.rightEyeMask.copy()
+        result.blit(self.rightEyeImage, (0,0), None, pygame.BLEND_MULT)
 
         self.screen.blit(result, (self.screen.get_width() - self.ur(151, x=True) - self.rightEyeImage.get_width(), self.ur(375, y=True)))
 
         # RIGHT EYEBROW
         self.screen.blit(self.rightEyebrow, (self.screen.get_width() - self.rightEyebrow.get_width() - self.ur(184, x=True), self.ur(99, y=True)))
 
+
+        # MOUTH
+        position = [0,0]
+        position[0] = self.ur(658, x=True)
+        position[1] = self.screen.get_height() - self.ur(101, x=True) - self.mouthImage.get_height()
+        self.screen.blit(self.mouthImage, position)
+
+    def showHypnoticFace(self):
+        self.screen.fill((255, 0, 66))
+        self.hypnoseShiftRatio += .005
+        if self.hypnoseShiftRatio > 1: self.hypnoseShiftRatio = 0
+
+        for i in range (5):
+            shift = self.hypnoseShiftRatio + ( i*.2 )
+            if shift > 1: shift -= 1
+            shift = math.exp(shift) - 1
+
+            radiusShift = shift * self.screen.get_width()/2
+            widthShift = math.ceil(shift * self.ur(20, y=True))
+
+            pygame.draw.circle(self.screen, [0,0,0], (self.screen.get_width()/2, self.screen.get_height()/2), radiusShift, widthShift)
+
+        self.screen.blit(self.hypnosisPupil, (self.screen.get_width()/2 - self.hypnosisPupil.get_width()/2, self.screen.get_height()/2 - self.hypnosisPupil.get_height()/2))
+
+    def showHatsuneMiku(self):
+        self.hatsuneVideo.draw(self.screen, (0,0))
+        pygame.display.flip()
+
     def run(self):
         while self.isRunning :
             self.handling_events()
-            # self.update()
+            self.update()
             self.display()
 
             self.clock.tick(60)
-            print(self.clock.get_fps())
+            # print(self.clock.get_fps())
             self.firstRun = False
 
     def ur(self, value, x=False, y=False):
