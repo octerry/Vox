@@ -168,17 +168,26 @@ class Main:
         pupilPosition[0] += self.eyeShiftRatioX * (self.leftEyeImage.get_width() / 2)
         pupilPosition[1] += self.eyeShiftRatioY * (self.leftEyeImage.get_height() / 2)
 
+        faceDisplacement = self.eyeShiftRatioY * self.ur(80, y=True)
+
+        finalPupilImage = pygame.transform.rotate(self.pupilImage, self.eyeShiftRatioX * 20)
+
         self.leftEyeImage.fill((255, 0, 66))
-        self.leftEyeImage.blit(self.pupilImage, pupilPosition)
+        self.leftEyeImage.blit(finalPupilImage, pupilPosition)
         self.leftEyeImage.blit(self.leftEyeBorder, (0,0))
+
 
         result = self.leftEyeMask.copy()
         result.blit(self.leftEyeImage, (0,0), None, pygame.BLEND_RGBA_MULT)
 
-        self.screen.blit(result, self.ur([111, 409], x=True, y=True))
+        position = self.ur([111, 409], x=True, y=True)
+        position[1] += faceDisplacement
+        self.screen.blit(result, position)
 
         # RIGHT EYEBROW
-        self.screen.blit(self.leftEyebrow, self.ur([120, 140], x=True, y=True))
+        position = self.ur([120, 140], x=True, y=True)
+        position[1] += faceDisplacement
+        self.screen.blit(self.leftEyebrow, position)
 
 
         # RIGHT EYE
@@ -187,22 +196,26 @@ class Main:
         pupilPosition[1] += self.eyeShiftRatioY * (self.rightEyeImage.get_height() / 2)
 
         self.rightEyeImage.fill((255, 0, 66))
-        self.rightEyeImage.blit(self.pupilImage, pupilPosition)
+        self.rightEyeImage.blit(finalPupilImage, pupilPosition)
         self.rightEyeImage.blit(self.rightEyeBorder, (0, 0))
 
         result = self.rightEyeMask.copy()
         result.blit(self.rightEyeImage, (0,0), None, pygame.BLEND_MULT)
 
-        self.screen.blit(result, (self.screen.get_width() - self.ur(151, x=True) - self.rightEyeImage.get_width(), self.ur(375, y=True)))
+        position = [self.screen.get_width() - self.ur(151, x=True) - self.rightEyeImage.get_width(), self.ur(375, y=True)]
+        position[1] += faceDisplacement
+        self.screen.blit(result, position)
 
         # RIGHT EYEBROW
-        self.screen.blit(self.rightEyebrow, (self.screen.get_width() - self.rightEyebrow.get_width() - self.ur(184, x=True), self.ur(99, y=True)))
+        position = [self.screen.get_width() - self.rightEyebrow.get_width() - self.ur(184, x=True), self.ur(99, y=True)]
+        position[1] += faceDisplacement
+        self.screen.blit(self.rightEyebrow, position)
 
 
         # MOUTH
         position = [0,0]
         position[0] = self.ur(658, x=True)
-        position[1] = self.screen.get_height() - self.ur(101, x=True) - self.mouthImage.get_height()
+        position[1] = self.screen.get_height() - self.ur(101, x=True) - self.mouthImage.get_height() + faceDisplacement
         self.screen.blit(self.mouthImage, position)
 
     def showHypnoticFace(self):
@@ -247,7 +260,7 @@ class Main:
             if y:
                 currentValue = value if not x else value[1] ## Au cas où si c'est une liste
                 finalValue = (currentValue/1080) * self.screen.get_height()
-                return finalValue if not x else (second, finalValue)
+                return finalValue if not x else [second, finalValue]
         else : return value
 
 pygame.init()
