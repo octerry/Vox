@@ -1,9 +1,6 @@
 import pygame, math
-from pygame.fastevent import post
-
-from pyvidplayer import Video
+from pyvidplayer2 import Video
 from enum import Enum
-
 
 class voxState(Enum):
     DEFAULT = 0
@@ -12,6 +9,7 @@ class voxState(Enum):
     MIKUVIDEO = 3
     DEMON = 4
     HATE = 5
+    DEI = 6
 
 class Main:
     def __init__(self, screen):
@@ -22,11 +20,13 @@ class Main:
         self.screen = screen
 
         # Titre de la fenetre
-        pygame.display.set_caption("Vox Test")
+        pygame.display.set_caption("Vox")
 
         self.clock = pygame.time.Clock()
 
         self.firstRun = True
+
+        self.setLoadingScreenAt(.01)
 
         self.lightningImage = None
         self.gradientSurface = None
@@ -36,6 +36,9 @@ class Main:
         self.hateGradientSurface = None
         self.hateGradientBounds = None
 
+        self.pixelFilter = pygame.Surface((self.screen.get_width(), self.screen.get_height()), pygame.SRCALPHA)
+
+        self.setLoadingScreenAt(.02)
         self.backgroundSetup()
 
         self.joysticks = []
@@ -49,7 +52,12 @@ class Main:
         self.hypnoseShiftRatio = 0
 
         self.importSprites()
-        self.importHatsuneMikuVideo()
+        self.importVideos()
+
+    def setLoadingScreenAt(self, p):
+        width = p * self.screen.get_width()
+        pygame.draw.rect(self.screen, (33, 141, 191), (0,0,width,10))
+        pygame.display.update()
 
     def backgroundSetup(self):
         # DEFAULT BG
@@ -59,6 +67,7 @@ class Main:
         self.lightningImage = pygame.Surface((rectWidth * 2, rectHeight * 2), pygame.SRCALPHA)
         pygame.draw.rect(self.lightningImage, (33, 141, 191), (0, 0, rectWidth, rectHeight))
         pygame.draw.rect(self.lightningImage, (33, 141, 191),(rectWidth, rectHeight - rectWidth, rectWidth, rectHeight))
+        self.setLoadingScreenAt(.05)
 
         ## Le dégradé circulaire classique
         self.gradientBounds = int(2 * self.screen.get_height())
@@ -68,6 +77,7 @@ class Main:
             opacity = 255 * (1 - radius / (self.gradientBounds // 2))
             color = (74, 158, 189, int(opacity))
             pygame.draw.circle(self.gradientSurface, color, center, radius)
+        self.setLoadingScreenAt(.1)
 
         ## L'éclair haine
         rectWidth = self.ur(180, x=True)
@@ -75,6 +85,7 @@ class Main:
         self.hateLightningImage = pygame.Surface((rectWidth * 2, rectHeight * 2), pygame.SRCALPHA)
         pygame.draw.rect(self.hateLightningImage, (16, 16, 16), (0, 0, rectWidth, rectHeight))
         pygame.draw.rect(self.hateLightningImage, (16, 16, 16),(rectWidth, rectHeight - rectWidth, rectWidth, rectHeight))
+        self.setLoadingScreenAt(.15)
 
         ## Le dégradé circulaire haine
         self.hateGradientBounds = int(4 * self.screen.get_height())
@@ -89,6 +100,15 @@ class Main:
                 if opacity < 0 : opacity = 0
             color = (0, 0, 0, int(opacity))
             pygame.draw.circle(self.hateGradientSurface, color, center, radius)
+        self.setLoadingScreenAt(.2)
+
+        # LE FILTRE PIXEL POUR DEI
+        self.pixelFilter.fill((126,187,117,60))
+        for x in range(self.screen.get_width()):
+            for y in range(self.screen.get_height()):
+                if x % int(self.ur(5, x=True)) == 0 and y % int(self.ur(5, y=True)) == 0:
+                    self.pixelFilter.set_at((x, y), (255,255,255))
+        self.setLoadingScreenAt(.21)
 
     def importSprites(self):
         ## Eclair d'hypnose
@@ -99,6 +119,7 @@ class Main:
         self.importBlazedSprites()
         self.importDemonSprites()
         self.importHateSprites()
+        self.importDeiSprites()
 
     def importDefaultSprites(self):
         # YEUX
@@ -220,10 +241,56 @@ class Main:
         self.hateEyeBorder = pygame.image.load("source/vox_hate_eye_border.svg").convert_alpha()
         self.hateEyeBorder = pygame.transform.scale(self.hateEyeBorder, self.ur([870, 535], x=True, y=True))
 
-    def importHatsuneMikuVideo(self):
+    def importDeiSprites(self):
+        # EYES
+        ## Left eye
+        self.deiLeftEyeImage = pygame.image.load("source/vox_dei_lefteye_bg.svg").convert_alpha()
+        self.deiLeftEyeImage = pygame.transform.scale(self.deiLeftEyeImage, self.ur([903, 614], x=True, y=True))
+        self.deiLeftEyeMask = pygame.image.load("source/vox_dei_lefteye_mask.svg").convert_alpha()
+        self.deiLeftEyeMask = pygame.transform.scale(self.deiLeftEyeMask, self.ur([903, 614], x=True, y=True))
+
+        ## Left eye border
+        self.deiLeftEyeBorder = pygame.image.load("source/vox_dei_lefteye_border.svg").convert_alpha()
+        self.deiLeftEyeBorder = pygame.transform.scale(self.deiLeftEyeBorder, self.ur([903, 614], x=True, y=True))
+
+        ## Left eyebrow
+        self.deiLeftEyebrow = pygame.image.load("source/vox_dei_lefteyebrow.svg").convert_alpha()
+        self.deiLeftEyebrow = pygame.transform.scale(self.deiLeftEyebrow, self.ur([905, 618], x=True, y=True))
+
+        ## Right eye
+        self.deiRightEyeImage = pygame.image.load("source/vox_dei_righteye_bg.svg").convert_alpha()
+        self.deiRightEyeImage = pygame.transform.scale(self.deiRightEyeImage, self.ur([841, 656], x=True, y=True))
+        self.deiRightEyeMask = pygame.image.load("source/vox_dei_righteye_mask.svg").convert_alpha()
+        self.deiRightEyeMask = pygame.transform.scale(self.deiRightEyeMask, self.ur([841, 656], x=True, y=True))
+
+        ## Right eye border
+        self.deiRightEyeBorder = pygame.image.load("source/vox_dei_righteye_border.svg").convert_alpha()
+        self.deiRightEyeBorder = pygame.transform.scale(self.deiRightEyeBorder, self.ur([841, 656], x=True, y=True))
+
+        ## Right eyebrow
+        self.deiRightEyebrow = pygame.image.load("source/vox_dei_righteyebrow.svg").convert_alpha()
+        self.deiRightEyebrow = pygame.transform.scale(self.deiRightEyebrow, self.ur([772, 515], x=True, y=True))
+
+        ## Pupil
+        self.deiPupil = pygame.image.load("source/vox_dei_pupil.svg").convert_alpha()
+        self.deiPupil = pygame.transform.scale(self.deiPupil, self.ur([69, 118], x=True, y=True))
+
+        # MOUTH
+        self.deiMouthMask = pygame.image.load("source/vox_dei_mouth_mask.svg").convert_alpha()
+        self.deiMouthMask = pygame.transform.scale(self.deiMouthMask, self.ur([2109, 930], x=True, y=True))
+        self.deiMouthBorder = pygame.image.load("source/vox_dei_mouth_border.svg").convert_alpha()
+        self.deiMouthBorder = pygame.transform.scale(self.deiMouthBorder, self.ur([2109, 930], x=True, y=True))
+
+    def importVideos(self):
+        ## Noise video
+        self.noiseVideo = Video("source/vox_dei_noise.mp4")
+        self.noiseVideo.resize(self.deiMouthMask.get_size())
+
+        ## Hatsune Miku
         self.hatsuneVideo = Video("source/hatsuneMiku.mp4")
-        self.hatsuneVideo.set_size((self.screen.get_width(), self.screen.get_height()))
+        self.hatsuneVideo.resize(self.screen.get_size())
         self.hatsuneVideo.pause()
+
 
     def handling_events(self):
         for event in pygame.event.get():
@@ -250,6 +317,8 @@ class Main:
                     self.currentState = voxState.DEMON
                 if event.key == pygame.K_6 and self.currentState != voxState.HATE:
                     self.currentState = voxState.HATE
+                if event.key == pygame.K_7 and self.currentState != voxState.DEI:
+                    self.currentState = voxState.DEI
 
     def update(self):
         self.eyeShiftRatioX = self.joysticks[0].get_axis(0)
@@ -273,9 +342,14 @@ class Main:
             self.showDemonFace()
         elif self.currentState == voxState.HATE:
             self.showHateFace()
+        elif self.currentState == voxState.DEI:
+            self.showDeiFace()
 
         # CONTOUR ROUGE
         pygame.draw.rect(self.screen, (214, 28, 41), (0, 0, self.screen.get_width(), self.screen.get_height()), int(self.ur(10, y=True)))
+
+        if self.currentState == voxState.DEI:
+            self.screen.blit(self.pixelFilter, (0,0), None, pygame.BLEND_RGBA_MULT)
 
         # Afficher les changements
         pygame.display.update()
@@ -575,6 +649,91 @@ class Main:
         position[1] += self.eyeShiftRatioY * self.ur(80, y=True)
         self.screen.blit(result, position)
 
+    def showDeiFace(self):
+        # LEFT EYE
+        pupilPosition = [self.deiLeftEyeImage.get_width()/2, self.deiLeftEyeImage.get_height()/2]
+        pupilPosition[0] += self.eyeShiftRatioX * (self.deiLeftEyeImage.get_width() / 4) + self.deiLeftEyeImage.get_width() / 6
+        pupilPosition[1] += self.eyeShiftRatioY * (self.deiLeftEyeImage.get_height() / 3)
+
+        faceDisplacement = self.eyeShiftRatioY * self.ur(80, y=True)
+
+        self.deiLeftEyeImage.fill((255, 0, 66))
+        self.deiLeftEyeImage.blit(self.deiPupil, pupilPosition)
+        self.deiLeftEyeImage.blit(self.deiLeftEyeBorder, (0,0))
+
+        result = self.deiLeftEyeMask.copy()
+        result.blit(self.deiLeftEyeImage, (0, 0), None, pygame.BLEND_RGBA_MULT)
+
+        position = self.ur([-10, -83], x=True, y=True)
+        position[1] += faceDisplacement
+        self.screen.blit(result, position)
+
+        position = self.ur([50, -257], x=True, y=True)
+        position[1] += faceDisplacement
+        self.screen.blit(self.deiLeftEyebrow, position)
+
+
+        # RIGHT EYE
+        rightEye = pygame.Surface(self.deiRightEyeImage.get_size())
+        rightEye.fill((255, 0, 66))
+        self.hypnoseShiftRatio += .005
+        if self.hypnoseShiftRatio > 1: self.hypnoseShiftRatio = 0
+
+        center = [rightEye.get_width()/2, rightEye.get_height()/2]
+        center[0] += self.eyeShiftRatioX * (rightEye.get_width() / 4) - rightEye.get_width() / 6
+        center[1] += self.eyeShiftRatioY * (rightEye.get_height() / 3)
+
+        for i in range (5):
+            shift = self.hypnoseShiftRatio + ( i*.2 )
+            if shift > 1: shift -= 1
+            shift = math.exp(shift) - 1
+
+            radiusShift = shift * rightEye.get_width()/2
+            widthShift = math.ceil(shift * self.ur(20, y=True))
+
+            pygame.draw.circle(rightEye, [0,0,0], (center[0], center[1]), radiusShift, widthShift)
+
+        rightEye.blit(self.hypnosisPupil, (center[0] - self.hypnosisPupil.get_width()/2, center[1] - self.hypnosisPupil.get_height()/2))
+
+        self.deiRightEyeImage.blit(rightEye, (0,0))
+        self.deiRightEyeImage.blit(self.deiRightEyeBorder, (0,0))
+
+        result = self.deiRightEyeMask.copy()
+        result.blit(self.deiRightEyeImage, (0, 0), None, pygame.BLEND_RGBA_MULT)
+
+        position = [ self.screen.get_width() - result.get_width() + self.ur(11, x=True), self.ur(-71, y=True) ]
+        position[1] += faceDisplacement
+        self.screen.blit(result, position)
+
+        position = self.ur([992, -150], x=True, y=True)
+        position[1] += faceDisplacement
+        self.screen.blit(self.deiRightEyebrow, position)
+
+
+        # MOUTH
+        deiMouth = pygame.Surface((self.deiMouthMask.get_width(), self.deiMouthMask.get_height()))
+
+        self.noiseVideo.draw(deiMouth, (0,0))
+
+        if self.noiseVideo.get_pos() >= 20:
+            self.noiseVideo.restart()
+
+        deiMouth.blit(self.deiMouthBorder, (0,0))
+
+        result = self.deiMouthMask.copy()
+        result.blit(deiMouth, (0, 0), None, pygame.BLEND_RGBA_MULT)
+
+        size = [deiMouth.get_width(), deiMouth.get_height()/2]
+        size[1] += self.mouthShiftRatio * deiMouth.get_height()/2
+        result = pygame.transform.scale(result, size)
+
+        position = self.ur([-89, 289], x=True, y=True)
+        position[1] += deiMouth.get_height()/4
+        position[1] -= self.mouthShiftRatio * deiMouth.get_height()/4
+        position[1] += faceDisplacement
+        self.screen.blit(result , position)
+
+
     def run(self):
         while self.isRunning :
             self.handling_events()
@@ -603,9 +762,9 @@ pygame.init()
 
 # à la fin faudra mettre (0,0) pour le fullscreen
 # c'est en 16:9
-screen = pygame.display.set_mode((800, 450))
+# screen = pygame.display.set_mode((800, 450))
 # screen = pygame.display.set_mode((1920, 1080))
-# screen = pygame.display.set_mode((0, 0))
+screen = pygame.display.set_mode((0, 0))
 instance = Main(screen)
 instance.run()
 
