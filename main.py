@@ -210,12 +210,8 @@ class Main:
         self.demonPupil = pygame.transform.scale(self.demonPupil, self.ur([93, 132], x=True, y=True))
 
         ## Bouche
-        self.demonMouthImage = pygame.image.load("source/vox_demon_mouth_bg.svg").convert_alpha()
+        self.demonMouthImage = pygame.image.load("source/vox_demon_mouth.svg").convert_alpha()
         self.demonMouthImage = pygame.transform.scale(self.demonMouthImage, self.ur([1959, 783], x=True, y=True))
-        self.demonMouthMask = pygame.image.load("source/vox_demon_mouth_mask.svg").convert_alpha()
-        self.demonMouthMask = pygame.transform.scale(self.demonMouthMask, self.ur([1959, 783], x=True, y=True))
-        self.demonMouthTop = pygame.image.load("source/vox_demon_mouth_top.svg").convert_alpha()
-        self.demonMouthTop = pygame.transform.scale(self.demonMouthTop, self.ur([1963, 430], x=True, y=True))
 
     def importHateSprites(self):
         ## Oeil
@@ -523,17 +519,15 @@ class Main:
 
 
         # MOUTH
-        self.demonMouthImage.blit(self.demonMouthTop, (0, 0))
-        demonMouseRatio = self.mouthShiftRatio * 0.5 + 0.5
+        demonMouthRatio = self.mouthShiftRatio * 0.5 + 0.5
 
-        result = self.demonMouthMask.copy()
-        result.blit(self.demonMouthImage, (0,0), None, pygame.BLEND_RGBA_MULT)
-        result = pygame.transform.scale(result, (result.get_width(), result.get_height() * demonMouseRatio))
+        size = [ self.demonMouthImage.get_width(), demonMouthRatio * self.demonMouthImage.get_height() ]
+        result = pygame.transform.scale(self.demonMouthImage, size)
 
         position = self.ur([47,466], x=True, y=True)
         position[1] += faceDisplacement
         position[1] += self.demonMouthImage.get_height()/2
-        position[1] -= (demonMouseRatio * self.demonMouthImage.get_height()/2)
+        position[1] -= (demonMouthRatio * self.demonMouthImage.get_height()/2)
         self.screen.blit(result, position)
 
     def showHateFace(self):
