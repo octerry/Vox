@@ -652,7 +652,7 @@ class Main:
     def showDeiFace(self):
         # LEFT EYE
         pupilPosition = [self.deiLeftEyeImage.get_width()/2, self.deiLeftEyeImage.get_height()/2]
-        pupilPosition[0] += self.eyeShiftRatioX * (self.deiLeftEyeImage.get_width() / 4) + self.deiLeftEyeImage.get_width() / 6
+        pupilPosition[0] += self.eyeShiftRatioX * (self.deiLeftEyeImage.get_width() / 4) + self.deiLeftEyeImage.get_width() / 8
         pupilPosition[1] += self.eyeShiftRatioY * (self.deiLeftEyeImage.get_height() / 3)
 
         faceDisplacement = self.eyeShiftRatioY * self.ur(80, y=True)
