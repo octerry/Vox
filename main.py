@@ -6,11 +6,12 @@ from enum import Enum
 
 
 class voxState(Enum):
-    BLAZED = 0
-    FULLSCREENHYPNOSE = 1
-    MIKUVIDEO = 2
-    DEMON = 3
-    HATE = 4
+    DEFAULT = 0
+    BLAZED = 1
+    FULLSCREENHYPNOSE = 2
+    MIKUVIDEO = 3
+    DEMON = 4
+    HATE = 5
 
 class Main:
     def __init__(self, screen):
@@ -43,7 +44,7 @@ class Main:
 
         self.mouthShiftRatio = 0
 
-        self.currentState = voxState.BLAZED
+        self.currentState = voxState.DEFAULT
 
         self.hypnoseShiftRatio = 0
 
@@ -94,9 +95,55 @@ class Main:
         self.hypnosisPupil = pygame.image.load("source/vox_hypnosis_lightning.svg").convert_alpha()
         self.hypnosisPupil = pygame.transform.scale(self.hypnosisPupil, self.ur([215, 390], x=True, y=True))
 
+        self.importDefaultSprites()
         self.importBlazedSprites()
         self.importDemonSprites()
         self.importHateSprites()
+
+    def importDefaultSprites(self):
+        # YEUX
+        ## Oeil gauche
+        self.defaultLeftEyeImage = pygame.image.load("source/vox_default_lefteye_bg.svg").convert_alpha()
+        self.defaultLeftEyeImage = pygame.transform.scale(self.defaultLeftEyeImage, self.ur([866, 352], x=True, y=True))
+        self.defaultLeftEyeMask = pygame.image.load("source/vox_default_lefteye_mask.svg").convert_alpha()
+        self.defaultLeftEyeMask = pygame.transform.scale(self.defaultLeftEyeMask, self.ur([866, 352], x=True, y=True))
+
+        ## Contour oeil gauche
+        self.defaultLeftEyeBorder = pygame.image.load("source/vox_default_lefteye_border.svg").convert_alpha()
+        self.defaultLeftEyeBorder = pygame.transform.scale(self.defaultLeftEyeBorder, self.ur([866, 352], x=True, y=True))
+
+        ## Sourcil gauche
+        self.defaultLeftEyebrow = pygame.image.load("source/vox_default_lefteyebrow.svg").convert_alpha()
+        self.defaultLeftEyebrow = pygame.transform.scale(self.defaultLeftEyebrow, self.ur([718, 244], x=True, y=True))
+
+        ## Oeil droit
+        self.defaultRightEyeImage = pygame.image.load("source/vox_default_righteye_bg.svg").convert_alpha()
+        self.defaultRightEyeImage = pygame.transform.scale(self.defaultRightEyeImage, self.ur([854, 376], x=True, y=True))
+        self.defaultRightEyeMask = pygame.image.load("source/vox_default_righteye_mask.svg").convert_alpha()
+        self.defaultRightEyeMask = pygame.transform.scale(self.defaultRightEyeMask, self.ur([854, 376], x=True, y=True))
+
+        ## Contour oeil droit
+        self.defaultRightEyeBorder = pygame.image.load("source/vox_default_righteye_border.svg").convert_alpha()
+        self.defaultRightEyeBorder = pygame.transform.scale(self.defaultRightEyeBorder, self.ur([854, 376], x=True, y=True))
+
+        ## Sourcil droite
+        self.defaultRightEyebrow = pygame.image.load("source/vox_default_righteyebrow.svg").convert_alpha()
+        self.defaultRightEyebrow = pygame.transform.scale(self.defaultRightEyebrow, self.ur([734, 276], x=True, y=True))
+
+        ## Pupille
+        self.defaultPupilImage = pygame.image.load("source/vox_pupil.svg").convert_alpha()
+        self.defaultPupilImage = pygame.transform.scale(self.defaultPupilImage, self.ur([61, 91], x=True, y=True))
+
+        ## Bouche
+        self.defaultMouthMask = pygame.image.load("source/vox_default_mouth_mask.svg").convert_alpha()
+        self.defaultMouthMask = pygame.transform.scale(self.defaultMouthMask, self.ur([1756, 855], x=True, y=True))
+        self.defaultMouthBorder = pygame.image.load("source/vox_default_mouth_border.svg").convert_alpha()
+        self.defaultMouthBorder = pygame.transform.scale(self.defaultMouthBorder, self.ur([1756, 855], x=True, y=True))
+
+        self.defaultMouthTop = pygame.image.load("source/vox_default_mouth_top.svg").convert_alpha()
+        self.defaultMouthTop = pygame.transform.scale(self.defaultMouthTop, self.ur([1756, 824], x=True, y=True))
+        self.defaultMouthBottom = pygame.image.load("source/vox_default_mouth_bottom.svg").convert_alpha()
+        self.defaultMouthBottom = pygame.transform.scale(self.defaultMouthBottom, self.ur([1756, 824], x=True, y=True))
 
     def importBlazedSprites(self):
         # SPRITES DES YEUX
@@ -128,13 +175,9 @@ class Main:
         self.blazedRightEyebrow = pygame.image.load("source/vox_blazed_righteyebrow.svg").convert_alpha()
         self.blazedRightEyebrow = pygame.transform.scale(self.blazedRightEyebrow, self.ur([735, 266], x=True, y=True))
 
-        ## Pupille
-        self.defaultPupilImage = pygame.image.load("source/vox_pupil.svg").convert_alpha()
-        self.defaultPupilImage = pygame.transform.scale(self.defaultPupilImage, self.ur([61, 91], x=True, y=True))
-
         ## Bouche
-        self.blaedMouthImage = pygame.image.load("source/vox_blazed_mouth.svg").convert_alpha()
-        self.blaedMouthImage = pygame.transform.scale(self.blaedMouthImage, self.ur([478, 224], x=True, y=True))
+        self.blazedMouthImage = pygame.image.load("source/vox_blazed_mouth.svg").convert_alpha()
+        self.blazedMouthImage = pygame.transform.scale(self.blazedMouthImage, self.ur([478, 224], x=True, y=True))
 
     def importDemonSprites(self):
         # SPRITES DES YEUX
@@ -198,28 +241,32 @@ class Main:
 
             if event.type == pygame.KEYDOWN:
                 self.hatsuneVideo.pause()
-                if event.key == pygame.K_1 and self.currentState != voxState.BLAZED: ## 1
+                if event.key == pygame.K_1 and self.currentState != voxState.DEFAULT:
+                    self.currentState = voxState.DEFAULT
+                if event.key == pygame.K_2 and self.currentState != voxState.BLAZED:
                     self.currentState = voxState.BLAZED
-                if event.key == pygame.K_2 and self.currentState != voxState.FULLSCREENHYPNOSE:
+                if event.key == pygame.K_3 and self.currentState != voxState.FULLSCREENHYPNOSE:
                     self.currentState = voxState.FULLSCREENHYPNOSE
-                if event.key == pygame.K_3 and self.currentState != voxState.MIKUVIDEO:
+                if event.key == pygame.K_4 and self.currentState != voxState.MIKUVIDEO:
                     self.currentState = voxState.MIKUVIDEO
                     self.hatsuneVideo.resume()
-                if event.key == pygame.K_4 and self.currentState != voxState.DEMON:
+                if event.key == pygame.K_5 and self.currentState != voxState.DEMON:
                     self.currentState = voxState.DEMON
-                if event.key == pygame.K_5 and self.currentState != voxState.HATE:
+                if event.key == pygame.K_6 and self.currentState != voxState.HATE:
                     self.currentState = voxState.HATE
 
     def update(self):
         self.eyeShiftRatioX = self.joysticks[0].get_axis(0)
         self.eyeShiftRatioY = self.joysticks[0].get_axis(1)
-        self.mouthShiftRatio = 0.5 - self.joysticks[0].get_axis(3)/2
+        self.mouthShiftRatio = -self.joysticks[0].get_axis(3) if self.joysticks[0].get_axis(3) < 0 else 0
 
     def display(self):
         # LE FOND
         self.showBackground()
 
         ## LES VISAGES
+        if self.currentState == voxState.DEFAULT:
+            self.showDefaultFace()
         if self.currentState == voxState.BLAZED:
             self.showBlazedFace()
         elif self.currentState == voxState.FULLSCREENHYPNOSE:
@@ -247,6 +294,81 @@ class Main:
 
         # --- DEGRADE CIRCULAIRE ---
         self.screen.blit(self.gradientSurface, (self.screen.get_width()/2 - self.gradientBounds/2, self.screen.get_height()/2 - self.gradientBounds/2))
+
+    def showDefaultFace(self):
+        # LEFT EYE
+        pupilPosition = [self.defaultLeftEyeImage.get_width() / 2, self.defaultLeftEyeImage.get_height() / 2 - self.defaultPupilImage.get_height() / 2]
+        pupilPosition[0] += self.eyeShiftRatioX * (self.defaultLeftEyeImage.get_width() / 2) - self.defaultPupilImage.get_width()/2
+        pupilPosition[1] += self.eyeShiftRatioY * (self.defaultLeftEyeImage.get_height() / 2) - self.defaultPupilImage.get_height()/2
+
+        spinValue = 180 if self.eyeShiftRatioY <= .1 else 0
+        finalPupilImage = pygame.transform.rotate(self.defaultPupilImage, self.eyeShiftRatioX * 20 + spinValue)
+
+        faceDisplacement = self.eyeShiftRatioY * self.ur(80, y=True)
+
+        self.defaultLeftEyeImage.fill((255, 0, 66))
+        self.defaultLeftEyeImage.blit(finalPupilImage, pupilPosition)
+        self.defaultLeftEyeImage.blit(self.defaultLeftEyeBorder, (0,0))
+
+
+        result = self.defaultLeftEyeMask.copy()
+        result.blit(self.defaultLeftEyeImage, (0, 0), None, pygame.BLEND_RGBA_MULT)
+
+        position = self.ur([60, 193], x=True, y=True)
+        position[1] += faceDisplacement
+        self.screen.blit(result, position)
+
+        position = self.ur([153, -31], x=True, y=True)
+        position[1] += faceDisplacement
+        self.screen.blit(self.defaultLeftEyebrow, position)
+
+
+        # RIGHT EYE
+        pupilPosition = [self.defaultRightEyeImage.get_width() / 2, self.defaultRightEyeImage.get_height() / 2 - self.defaultPupilImage.get_height() / 2]
+        pupilPosition[0] += self.eyeShiftRatioX * (self.defaultRightEyeImage.get_width() / 2) - self.defaultPupilImage.get_width()/2
+        pupilPosition[1] += self.eyeShiftRatioY * (self.defaultRightEyeImage.get_height() / 2) - self.defaultPupilImage.get_height()/2
+
+        self.defaultRightEyeImage.fill((255, 0, 66))
+        self.defaultRightEyeImage.blit(finalPupilImage, pupilPosition)
+        self.defaultRightEyeImage.blit(self.defaultRightEyeBorder, (0,0))
+
+
+        result = self.defaultRightEyeMask.copy()
+        result.blit(self.defaultRightEyeImage, (0, 0), None, pygame.BLEND_RGBA_MULT)
+
+        position = [ self.screen.get_width() - result.get_width() - self.ur(42,x=True), self.ur(146,y=True) ]
+        position[1] += faceDisplacement
+        self.screen.blit(result, position)
+
+        position = [ self.screen.get_width() - self.defaultRightEyebrow.get_width() - self.ur(128, x=True), self.ur(-31, y=True) ]
+        position[1] += faceDisplacement
+        self.screen.blit(self.defaultRightEyebrow, position)
+
+
+        # MOUTH
+        mouthImage = pygame.Surface((self.defaultMouthMask.get_width(), self.defaultMouthMask.get_height()))
+        mouthImage.fill((25, 49, 58))
+
+        mouthDeformation = self.mouthShiftRatio * self.defaultMouthTop.get_height()/2
+
+        size = [ self.defaultMouthTop.get_width(),  self.defaultMouthTop.get_height() ]
+        size[1] -= mouthDeformation
+        newMouthTop = pygame.transform.scale(self.defaultMouthTop, size)
+        mouthImage.blit(newMouthTop, (0, 0))
+
+        size = [ self.defaultMouthBottom.get_width(),  self.defaultMouthBottom.get_height() ]
+        size[1] -= mouthDeformation
+        newMouthBottom = pygame.transform.scale(self.defaultMouthBottom, size)
+        mouthImage.blit(newMouthBottom, (0, self.defaultMouthMask.get_height() - newMouthBottom.get_height()))
+
+        mouthImage.blit(self.defaultMouthBorder, (0, 0))
+
+        result = self.defaultMouthMask.copy()
+        result.blit(mouthImage, (0, 0), None, pygame.BLEND_RGBA_MULT)
+
+        position = self.ur([122, 400], x=True, y=True)
+        position[1] += faceDisplacement
+        self.screen.blit(result, position)
 
     def showBlazedFace(self):
         # LEFT EYE
@@ -301,8 +423,8 @@ class Main:
         # MOUTH
         position = [0,0]
         position[0] = self.ur(658, x=True)
-        position[1] = self.screen.get_height() - self.ur(101, x=True) - self.blaedMouthImage.get_height() + faceDisplacement
-        self.screen.blit(self.blaedMouthImage, position)
+        position[1] = self.screen.get_height() - self.ur(101, x=True) - self.blazedMouthImage.get_height() + faceDisplacement
+        self.screen.blit(self.blazedMouthImage, position)
 
     def showHypnoticFace(self):
         self.screen.fill((255, 0, 66))
@@ -487,9 +609,9 @@ pygame.init()
 
 # à la fin faudra mettre (0,0) pour le fullscreen
 # c'est en 16:9
-# screen = pygame.display.set_mode((800, 450))
+screen = pygame.display.set_mode((800, 450))
 # screen = pygame.display.set_mode((1920, 1080))
-screen = pygame.display.set_mode((0, 0))
+# screen = pygame.display.set_mode((0, 0))
 instance = Main(screen)
 instance.run()
 
