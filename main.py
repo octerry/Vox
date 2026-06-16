@@ -10,6 +10,7 @@ class voxState(Enum):
     FULLSCREENHYPNOSE = 1
     MIKUVIDEO = 2
     DEMON = 3
+    HATE = 4
 
 class Main:
     def __init__(self, screen):
@@ -30,6 +31,12 @@ class Main:
         self.gradientSurface = None
         self.gradientBounds = None
 
+        self.hateLightningImage = None
+        self.hateGradientSurface = None
+        self.hateGradientBounds = None
+
+        self.backgroundSetup()
+
         self.joysticks = []
         self.eyeShiftRatioX = 0
         self.eyeShiftRatioY = 0
@@ -43,6 +50,45 @@ class Main:
         self.importSprites()
         self.importHatsuneMikuVideo()
 
+    def backgroundSetup(self):
+        # DEFAULT BG
+        ## L'éclair classique
+        rectWidth = self.ur(180, x=True)
+        rectHeight = self.ur(800, y=True)
+        self.lightningImage = pygame.Surface((rectWidth * 2, rectHeight * 2), pygame.SRCALPHA)
+        pygame.draw.rect(self.lightningImage, (33, 141, 191), (0, 0, rectWidth, rectHeight))
+        pygame.draw.rect(self.lightningImage, (33, 141, 191),(rectWidth, rectHeight - rectWidth, rectWidth, rectHeight))
+
+        ## Le dégradé circulaire classique
+        self.gradientBounds = int(2 * self.screen.get_height())
+        self.gradientSurface = pygame.Surface((self.gradientBounds, self.gradientBounds), pygame.SRCALPHA)
+        center = [self.gradientBounds / 2, self.gradientBounds / 2]
+        for radius in range(self.gradientBounds // 2, 0, -1):
+            opacity = 255 * (1 - radius / (self.gradientBounds // 2))
+            color = (74, 158, 189, int(opacity))
+            pygame.draw.circle(self.gradientSurface, color, center, radius)
+
+        ## L'éclair haine
+        rectWidth = self.ur(180, x=True)
+        rectHeight = self.ur(800, y=True)
+        self.hateLightningImage = pygame.Surface((rectWidth * 2, rectHeight * 2), pygame.SRCALPHA)
+        pygame.draw.rect(self.hateLightningImage, (16, 16, 16), (0, 0, rectWidth, rectHeight))
+        pygame.draw.rect(self.hateLightningImage, (16, 16, 16),(rectWidth, rectHeight - rectWidth, rectWidth, rectHeight))
+
+        ## Le dégradé circulaire haine
+        self.hateGradientBounds = int(4 * self.screen.get_height())
+        self.hateGradientSurface = pygame.Surface((self.hateGradientBounds, self.hateGradientBounds), pygame.SRCALPHA)
+        center = [self.hateGradientBounds / 2, self.hateGradientBounds / 2]
+        for radius in range(self.hateGradientBounds // 2, 0, -1):
+            if radius / (self.hateGradientBounds/2) <= .8 : opacity = 250
+            else :
+                opacityPercentage = math.exp( ( radius / (self.hateGradientBounds/2) - .8 ) * 5 ) - 1
+                opacity = ( 1 - opacityPercentage ) * 255
+                if opacity > 250 : opacity = 250
+                if opacity < 0 : opacity = 0
+            color = (0, 0, 0, int(opacity))
+            pygame.draw.circle(self.hateGradientSurface, color, center, radius)
+
     def importSprites(self):
         ## Eclair d'hypnose
         self.hypnosisPupil = pygame.image.load("source/vox_hypnosis_lightning.svg").convert_alpha()
@@ -50,6 +96,7 @@ class Main:
 
         self.importBlazedSprites()
         self.importDemonSprites()
+        self.importHateSprites()
 
     def importBlazedSprites(self):
         # SPRITES DES YEUX
@@ -127,6 +174,13 @@ class Main:
         self.demonMouthTop = pygame.image.load("source/vox_demon_mouth_top.svg").convert_alpha()
         self.demonMouthTop = pygame.transform.scale(self.demonMouthTop, self.ur([1963, 430], x=True, y=True))
 
+    def importHateSprites(self):
+        ## Oeil
+        self.hateEyeMask = pygame.image.load("source/vox_hate_eye_bg.svg").convert_alpha()
+        self.hateEyeMask = pygame.transform.scale(self.hateEyeMask, self.ur([870, 535], x=True, y=True))
+        self.hateEyeBorder = pygame.image.load("source/vox_hate_eye_border.svg").convert_alpha()
+        self.hateEyeBorder = pygame.transform.scale(self.hateEyeBorder, self.ur([870, 535], x=True, y=True))
+
     def importHatsuneMikuVideo(self):
         self.hatsuneVideo = Video("source/hatsuneMiku.mp4")
         self.hatsuneVideo.set_size((self.screen.get_width(), self.screen.get_height()))
@@ -153,6 +207,8 @@ class Main:
                     self.hatsuneVideo.resume()
                 if event.key == pygame.K_4 and self.currentState != voxState.DEMON:
                     self.currentState = voxState.DEMON
+                if event.key == pygame.K_5 and self.currentState != voxState.HATE:
+                    self.currentState = voxState.HATE
 
     def update(self):
         self.eyeShiftRatioX = self.joysticks[0].get_axis(0)
@@ -172,6 +228,8 @@ class Main:
             self.showHatsuneMiku()
         elif self.currentState == voxState.DEMON:
             self.showDemonFace()
+        elif self.currentState == voxState.HATE:
+            self.showHateFace()
 
         # CONTOUR ROUGE
         pygame.draw.rect(self.screen, (214, 28, 41), (0, 0, self.screen.get_width(), self.screen.get_height()), int(self.ur(10, y=True)))
@@ -184,24 +242,10 @@ class Main:
         self.screen.fill((16, 97, 148))
 
         # --- ECLAIR SUR SON FRONT ---
-        if (self.firstRun):
-            rectWidth = self.ur(180, x=True)
-            rectHeight = self.ur(800, y=True)
-            self.image = pygame.Surface((rectWidth*2,rectHeight*2), pygame.SRCALPHA)
-            pygame.draw.rect(self.image, (33, 141, 191), (0, 0, rectWidth, rectHeight))
-            pygame.draw.rect(self.image, (33, 141, 191), (rectWidth, rectHeight-rectWidth, rectWidth, rectHeight))
-        toShow = pygame.transform.rotate(self.image, -40)
+        toShow = pygame.transform.rotate(self.lightningImage, -40)
         self.screen.blit(toShow, (self.ur(-410, y=True), self.ur(-350, y=True)))
 
         # --- DEGRADE CIRCULAIRE ---
-        if (self.firstRun):
-            self.gradientBounds = int(2 * self.screen.get_height())
-            self.gradientSurface = pygame.Surface((self.gradientBounds, self.gradientBounds), pygame.SRCALPHA)
-            center = [self.gradientBounds/2, self.gradientBounds/2]
-            for radius in range(self.gradientBounds // 2, 0, -1):
-                opacity = 255 * (1 - radius / (self.gradientBounds // 2))
-                color = (74, 158, 189, int(opacity))
-                pygame.draw.circle(self.gradientSurface, color, center, radius)
         self.screen.blit(self.gradientSurface, (self.screen.get_width()/2 - self.gradientBounds/2, self.screen.get_height()/2 - self.gradientBounds/2))
 
     def showBlazedFace(self):
@@ -370,6 +414,51 @@ class Main:
         position[1] -= (demonMouseRatio * self.demonMouthImage.get_height()/2)
         self.screen.blit(result, position)
 
+    def showHateFace(self):
+        # --- FOND GRIS ---
+        self.screen.fill((66, 65, 66))
+
+        # --- DEGRADE CIRCULAIRE ---
+        self.screen.blit(self.hateGradientSurface, (self.screen.get_width()/2 - self.hateGradientBounds/2, self.screen.get_height()/2 - self.hateGradientBounds/5))
+
+        # --- ECLAIR SUR SON FRONT ---
+        toShow = pygame.transform.rotate(self.hateLightningImage, -40)
+        self.screen.blit(toShow, (self.ur(-410, y=True), self.ur(-350, y=True)))
+
+        # OEIL
+        hateEye = pygame.Surface((self.hateEyeMask.get_width(), self.hateEyeMask.get_height()))
+        hateEye.fill((255, 0, 66))
+
+        self.hypnoseShiftRatio += .005
+        if self.hypnoseShiftRatio > 1: self.hypnoseShiftRatio = 0
+
+        center = [hateEye.get_width()/2, hateEye.get_height()/2]
+        center[0] += self.eyeShiftRatioX * (hateEye.get_width() / 2)
+        center[1] += self.eyeShiftRatioY * (hateEye.get_height() / 2)
+
+        for i in range (5):
+            shift = self.hypnoseShiftRatio + ( i*.2 )
+            if shift > 1: shift -= 1
+            shift = math.exp(shift) - 1
+
+            radiusShift = shift * hateEye.get_width()/2
+            widthShift = math.ceil(shift * self.ur(20, y=True))
+
+            pygame.draw.circle(hateEye, [0,0,0], (center[0], center[1]), radiusShift, widthShift)
+
+        angle = 20 + self.eyeShiftRatioX * 10
+        newHypnosisPupil = pygame.transform.rotate(self.hypnosisPupil, angle)
+        hateEye.blit(newHypnosisPupil, (center[0] - self.hypnosisPupil.get_width()/2, center[1] - self.hypnosisPupil.get_height()/2))
+
+        hateEye.blit(self.hateEyeBorder)
+
+        result = self.hateEyeMask.copy()
+        result.blit(hateEye, (0, 0), None, pygame.BLEND_RGBA_MULT)
+
+        position = [self.screen.get_width() - result.get_width() - self.ur(50, x=True), self.ur(76, y=True)]
+        position[1] += self.eyeShiftRatioY * self.ur(80, y=True)
+        self.screen.blit(result, position)
+
     def run(self):
         while self.isRunning :
             self.handling_events()
@@ -398,9 +487,9 @@ pygame.init()
 
 # à la fin faudra mettre (0,0) pour le fullscreen
 # c'est en 16:9
-screen = pygame.display.set_mode((800, 450))
+# screen = pygame.display.set_mode((800, 450))
 # screen = pygame.display.set_mode((1920, 1080))
-# screen = pygame.display.set_mode((0, 0))
+screen = pygame.display.set_mode((0, 0))
 instance = Main(screen)
 instance.run()
 
