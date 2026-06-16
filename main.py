@@ -286,6 +286,8 @@ class Main:
         pupilPosition[0] += self.eyeShiftRatioX * (self.demonDownEyeImage.get_width() / 2)
         pupilPosition[1] += self.eyeShiftRatioY * (self.demonDownEyeImage.get_height() / 2)
 
+        faceDisplacement = self.eyeShiftRatioY * self.ur(100, y=True)
+
         finalPupilImage = pygame.transform.rotate(self.demonPupil, self.eyeShiftRatioX * 40)
 
         self.demonDownEyeImage.fill((255, 0, 66))
@@ -296,9 +298,11 @@ class Main:
         result.blit(self.demonDownEyeImage, (0,0), None, pygame.BLEND_RGBA_MULT)
 
         position = self.ur([126,243], x=True, y=True)
+        position[1] += faceDisplacement
         self.screen.blit(result, position)
 
         position = self.ur([149,197], x=True, y=True)
+        position[1] += faceDisplacement
         self.screen.blit(self.demonDownEyebrow, position)
 
 
@@ -316,9 +320,11 @@ class Main:
         result = pygame.transform.rotate(result, -25.5)
 
         position = self.ur([344, 0], x=True, y=True)
+        position[1] += faceDisplacement
         self.screen.blit(result, position)
 
         position = [self.ur(288, x=True), 0]
+        position[1] += faceDisplacement
         self.screen.blit(self.demonUpEyebrow, position)
 
 
@@ -345,7 +351,9 @@ class Main:
         pygame.draw.rect(rightEye, (66, 219, 230), [0,0,rightEye.get_width(),rightEye.get_height()], int(self.ur(8, y=True)))
         rightEye.blit(self.hypnosisPupil, (center[0] - self.hypnosisPupil.get_width()/2, center[1] - self.hypnosisPupil.get_height()/2))
 
-        self.screen.blit(rightEye, (self.screen.get_width() - rightEye.get_width(), 0))
+        position = [self.screen.get_width() - rightEye.get_width(), 0]
+        position[1] += faceDisplacement
+        self.screen.blit(rightEye, position)
 
 
         # MOUTH
@@ -357,6 +365,7 @@ class Main:
         result = pygame.transform.scale(result, (result.get_width(), result.get_height() * demonMouseRatio))
 
         position = self.ur([47,466], x=True, y=True)
+        position[1] += faceDisplacement
         position[1] += self.demonMouthImage.get_height()/2
         position[1] -= (demonMouseRatio * self.demonMouthImage.get_height()/2)
         self.screen.blit(result, position)
