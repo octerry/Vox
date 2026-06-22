@@ -11,6 +11,8 @@ class voxState(Enum):
     HATE = 5
     DEI = 6
     LAUGH = 7
+    MUTED = 8
+    CALIBRATION = 64
 
 class Main:
     def __init__(self, screen):
@@ -135,6 +137,9 @@ class Main:
 
         self.importLaughSprites()
         self.setLoadingScreenAt(0.7)
+
+        self.importMutedSprites()
+        self.setLoadingScreenAt(0.75)
 
     def importDefaultSprites(self):
         # YEUX
@@ -347,6 +352,11 @@ class Main:
         self.laughBlood = pygame.image.load("source/vox_laugh_blood.svg").convert_alpha()
         self.laughBlood = pygame.transform.scale(self.laughBlood, self.ur([76, 407], x=True, y=True))
 
+    def importMutedSprites(self):
+        # MUTE SYMBOL
+        self.mutedImage = pygame.image.load("source/vox_muted.svg").convert_alpha()
+        self.mutedImage = pygame.transform.scale(self.mutedImage, self.ur([980, 980], x=True, y=True))
+
     def importVideos(self):
         ## Noise video
         self.noiseVideo = Video("source/vox_dei_noise.mp4")
@@ -388,6 +398,10 @@ class Main:
                         self.currentState = voxState.DEI
                     case pygame.K_8 :
                         self.currentState = voxState.LAUGH
+                    case pygame.K_9 :
+                        self.currentState = voxState.MUTED
+                    case pygame.K_c :
+                        self.currentState = voxState.CALIBRATION
 
     def update(self):
         self.eyeShiftRatioX = self.joysticks[0].get_axis(0)
@@ -398,7 +412,7 @@ class Main:
         # LE FOND
         self.showBackground()
 
-        ## LES VISAGES
+        # LES VISAGES
         match self.currentState:
             case voxState.DEFAULT:
                 self.showDefaultFace()
@@ -416,6 +430,10 @@ class Main:
                 self.showDeiFace()
             case voxState.LAUGH:
                 self.showLaughFace()
+            case voxState.MUTED:
+                self.showMutedFace()
+            case voxState.CALIBRATION:
+                self.showCalibrationFace()
 
 
         # CONTOUR ROUGE
@@ -907,6 +925,35 @@ class Main:
         position[1] += self.laughMouthMask.get_height()/5
         position[1] -= self.laughMouthMask.get_height()/5 * (self.mouthShiftRatio)
         self.screen.blit(result, position)
+
+    def showMutedFace(self):
+        # MUTE SYMBOL
+        position = [ self.screen.get_width()/2 - self.mutedImage.get_width()/2, self.screen.get_height()/2 - self.mutedImage.get_height()/2 ]
+        self.screen.blit(self.mutedImage, position)
+
+    def showCalibrationFace(self):
+        x1 = self.screen.get_width()/7
+        x2 = x1 * 2
+        x3 = x1 * 3
+        x4 = x1 * 4
+        x5 = x1 * 5
+        x6 = x1 * 6
+        pygame.draw.rect(self.screen, [255, 255, 255], [0,0,x1,self.screen.get_height()])
+        pygame.draw.rect(self.screen, [255, 255, 0], [x1,0,x1,self.screen.get_height()])
+        pygame.draw.rect(self.screen, [0, 255, 255], [x2,0,x1,self.screen.get_height()])
+        pygame.draw.rect(self.screen, [0, 255, 0], [x3,0,x1,self.screen.get_height()])
+        pygame.draw.rect(self.screen, [255, 0, 255], [x4,0,x1,self.screen.get_height()])
+        pygame.draw.rect(self.screen, [255, 0, 0], [x5,0,x1,self.screen.get_height()])
+        pygame.draw.rect(self.screen, [0, 0, 255], [x6,0,x1,self.screen.get_height()])
+
+        yPos = self.screen.get_height() - self.ur(150, y=True)
+        pygame.draw.rect(self.screen, [0, 0, 255], [0,yPos,x1,self.screen.get_height()])
+        pygame.draw.rect(self.screen, [0, 0, 0], [x1,yPos,x1,self.screen.get_height()])
+        pygame.draw.rect(self.screen, [255, 0, 255], [x2,yPos,x1,self.screen.get_height()])
+        pygame.draw.rect(self.screen, [0, 0, 0], [x3,yPos,x1,self.screen.get_height()])
+        pygame.draw.rect(self.screen, [0, 255, 255], [x4,yPos,x1,self.screen.get_height()])
+        pygame.draw.rect(self.screen, [0, 0, 0], [x5,yPos,x1,self.screen.get_height()])
+        pygame.draw.rect(self.screen, [255, 255, 255], [x6,yPos,x1,self.screen.get_height()])
 
 
     def run(self):
