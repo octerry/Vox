@@ -12,6 +12,7 @@ class voxState(Enum):
     DEI = 6
     LAUGH = 7
     MUTED = 8
+    SMOL = 9
     CALIBRATION = 64
 
 class Main:
@@ -140,6 +141,9 @@ class Main:
 
         self.importMutedSprites()
         self.setLoadingScreenAt(0.75)
+
+        self.importSmolSprites()
+        self.setLoadingScreenAt(0.9)
 
     def importDefaultSprites(self):
         # YEUX
@@ -357,6 +361,66 @@ class Main:
         self.mutedImage = pygame.image.load("source/vox_muted.svg").convert_alpha()
         self.mutedImage = pygame.transform.scale(self.mutedImage, self.ur([980, 980], x=True, y=True))
 
+    def importSmolSprites(self):
+        # EYES
+        ## Left eye
+        self.smolLeftEyeMask = pygame.image.load("source/vox_small_lefteye_mask.svg").convert_alpha()
+        self.smolLeftEyeMask = pygame.transform.scale(self.smolLeftEyeMask, self.ur([175, 144], x=True, y=True))
+        self.smolLeftEyeImage = pygame.Surface(self.smolLeftEyeMask.get_size())
+
+        ## Left eye border
+        self.smolLeftEyeBorder = pygame.image.load("source/vox_small_lefteye_border.svg").convert_alpha()
+        self.smolLeftEyeBorder = pygame.transform.scale(self.smolLeftEyeBorder, self.ur([175, 144], x=True, y=True))
+
+        ## Left eyebrow
+        self.smolLeftEyebrow = pygame.image.load("source/vox_small_lefteyebrow.svg").convert_alpha()
+        self.smolLeftEyebrow = pygame.transform.scale(self.smolLeftEyebrow, self.ur([204, 150], x=True, y=True))
+
+        ## Left eye dark circle
+        self.smolLeftDarkCircle = pygame.image.load("source/vox_small_leftdarkcircle.svg").convert_alpha()
+        self.smolLeftDarkCircle = pygame.transform.scale(self.smolLeftDarkCircle, self.ur([84, 37], x=True, y=True))
+
+        ## Right eye
+        self.smolRightEyeMask = pygame.image.load("source/vox_small_righteye_mask.svg").convert_alpha()
+        self.smolRightEyeMask = pygame.transform.scale(self.smolRightEyeMask, self.ur([174, 135], x=True, y=True))
+        self.smolRightEyeImage = pygame.Surface(self.smolRightEyeMask.get_size())
+
+        ## Right eye border
+        self.smolRightEyeBorder = pygame.image.load("source/vox_small_righteye_border.svg").convert_alpha()
+        self.smolRightEyeBorder = pygame.transform.scale(self.smolRightEyeBorder, self.ur([174, 135], x=True, y=True))
+
+        ## Right eyebrow
+        self.smolRightEyebrow = pygame.image.load("source/vox_small_righteyebrow.svg").convert_alpha()
+        self.smolRightEyebrow = pygame.transform.scale(self.smolRightEyebrow, self.ur([174, 135], x=True, y=True))
+
+        ## Right eye dark circle
+        self.smolRightDarkCircle = pygame.image.load("source/vox_small_rightdarkcircle.svg").convert_alpha()
+        self.smolRightDarkCircle = pygame.transform.scale(self.smolRightDarkCircle, self.ur([76, 31], x=True, y=True))
+
+        ## Pupil
+        self.smolPupil = pygame.image.load("source/vox_pupil.svg").convert_alpha()
+        self.smolPupil = pygame.transform.scale(self.smolPupil, self.ur([19, 29], x=True, y=True))
+
+        ## Sweat
+        self.smolSweatLeft = pygame.image.load("source/vox_small_sweat_left.svg").convert_alpha()
+        self.smolSweatLeft = pygame.transform.scale(self.smolSweatLeft, self.ur([26, 45], x=True, y=True))
+        self.smolSweatBottomLeft = pygame.image.load("source/vox_small_sweat_bottomleft.svg").convert_alpha()
+        self.smolSweatBottomLeft = pygame.transform.scale(self.smolSweatBottomLeft, self.ur([20, 29], x=True, y=True))
+        self.smolSweatBottomRight = pygame.image.load("source/vox_small_sweat_bottomright.svg").convert_alpha()
+        self.smolSweatBottomRight = pygame.transform.scale(self.smolSweatBottomRight, self.ur([17, 22], x=True, y=True))
+        self.smolSweatTopRight = pygame.image.load("source/vox_small_sweat_topright.svg").convert_alpha()
+        self.smolSweatTopRight = pygame.transform.scale(self.smolSweatTopRight, self.ur([21, 41], x=True, y=True))
+
+        # Mouth
+        self.smolMouthImage = pygame.image.load("source/vox_small_mouth_bg.svg").convert_alpha()
+        self.smolMouthImage = pygame.transform.scale(self.smolMouthImage, self.ur([88, 86], x=True, y=True))
+        self.smolMouthMask = pygame.image.load("source/vox_small_mouth_mask.svg").convert_alpha()
+        self.smolMouthMask = pygame.transform.scale(self.smolMouthMask, self.ur([88, 86], x=True, y=True))
+        self.smolMouthTop = pygame.image.load("source/vox_small_mouth_top.svg").convert_alpha()
+        self.smolMouthTop = pygame.transform.scale(self.smolMouthTop, self.ur([88, 22], x=True, y=True))
+        self.smolMouthBottom = pygame.image.load("source/vox_small_mouth_bottom.svg").convert_alpha()
+        self.smolMouthBottom = pygame.transform.scale(self.smolMouthBottom, self.ur([72, 86], x=True, y=True))
+
     def importVideos(self):
         ## Noise video
         self.noiseVideo = Video("source/vox_dei_noise.mp4")
@@ -400,6 +464,8 @@ class Main:
                         self.currentState = voxState.LAUGH
                     case pygame.K_9 :
                         self.currentState = voxState.MUTED
+                    case pygame.K_0 :
+                        self.currentState = voxState.SMOL
                     case pygame.K_c :
                         self.currentState = voxState.CALIBRATION
 
@@ -432,6 +498,8 @@ class Main:
                 self.showLaughFace()
             case voxState.MUTED:
                 self.showMutedFace()
+            case voxState.SMOL:
+                self.showSmolFace()
             case voxState.CALIBRATION:
                 self.showCalibrationFace()
 
@@ -930,6 +998,97 @@ class Main:
         # MUTE SYMBOL
         position = [ self.screen.get_width()/2 - self.mutedImage.get_width()/2, self.screen.get_height()/2 - self.mutedImage.get_height()/2 ]
         self.screen.blit(self.mutedImage, position)
+
+    def showSmolFace(self):
+        # LEFT EYE
+        pupilPosition = [self.smolLeftEyeMask.get_width()/2, self.smolLeftEyeMask.get_height()/2]
+        pupilPosition[0] += self.eyeShiftRatioX * (self.smolLeftEyeMask.get_width() / 4) + self.smolPupil.get_width()
+        pupilPosition[1] += self.eyeShiftRatioY * (self.smolLeftEyeMask.get_height() / 5) - self.smolPupil.get_height()
+
+        spinValue = 180 if self.eyeShiftRatioY <= -.3 else 0
+        finalPupilImage = pygame.transform.rotate(self.smolPupil, self.eyeShiftRatioX * 10 + spinValue)
+
+        faceDisplacement = self.eyeShiftRatioY * self.ur(80, y=True)
+
+        self.smolLeftEyeImage.fill((255, 0, 66))
+        self.smolLeftEyeImage.blit(finalPupilImage, pupilPosition)
+        self.smolLeftEyeImage.blit(self.smolLeftEyeBorder, (0,0))
+
+        result = self.smolLeftEyeMask.copy()
+        result.blit(self.smolLeftEyeImage, (0, 0), None, pygame.BLEND_RGBA_MULT)
+
+        position = self.ur([764, 363], x=True, y=True)
+        position[1] += faceDisplacement
+        self.screen.blit(result, position)
+
+        position = self.ur([711, 293], x=True, y=True)
+        position[1] += faceDisplacement
+        self.screen.blit(self.smolLeftEyebrow, position)
+
+        position = self.ur([753,486], x=True, y=True)
+        position[1] += faceDisplacement
+        self.screen.blit(self.smolLeftDarkCircle, position)
+
+
+        # RIGHT EYE
+        pupilPosition = [self.smolRightEyeMask.get_width()/2, self.smolRightEyeMask.get_height()/2]
+        pupilPosition[0] += self.eyeShiftRatioX * (self.smolRightEyeMask.get_width() / 4) - self.smolPupil.get_width()
+        pupilPosition[1] += self.eyeShiftRatioY * (self.smolRightEyeMask.get_height() / 5) - self.smolPupil.get_height()
+
+        spinValue = 180 if self.eyeShiftRatioY <= -.3 else 0
+        finalPupilImage = pygame.transform.rotate(self.smolPupil, self.eyeShiftRatioX * 10 + spinValue)
+
+        self.smolRightEyeImage.fill((255, 0, 66))
+        self.smolRightEyeImage.blit(finalPupilImage, pupilPosition)
+        self.smolRightEyeImage.blit(self.smolRightEyeBorder, (0,0))
+
+        result = self.smolRightEyeMask.copy()
+        result.blit(self.smolRightEyeImage, (0, 0), None, pygame.BLEND_RGBA_MULT)
+
+        position = self.ur([989,363], x=True, y=True)
+        position[1] += faceDisplacement
+        self.screen.blit(result, position)
+
+        position = self.ur([1010,279], x=True, y=True)
+        position[1] += faceDisplacement
+        self.screen.blit(self.smolRightEyebrow, position)
+
+        position = self.ur([1087,490], x=True, y=True)
+        position[1] += faceDisplacement
+        self.screen.blit(self.smolRightDarkCircle, position)
+
+
+        # MOUTH
+        mouthImage = self.smolMouthImage.copy()
+        mouthImage.blit(self.smolMouthBottom, self.ur([8,2], x=True, y=True))
+
+        result = self.smolMouthMask.copy()
+        result.blit(mouthImage, (0, 0), None, pygame.BLEND_RGBA_MULT)
+
+        scale = [ result.get_width(), result.get_height() ]
+        scale[0] *= 2 - self.mouthShiftRatio
+        scale[1] *= self.mouthShiftRatio
+        result = pygame.transform.scale(result, scale)
+
+        position = self.ur([882, 518], x=True, y=True)
+        position[0] += self.mouthShiftRatio * result.get_width()/3
+        position[1] += faceDisplacement
+        position[1] += self.smolMouthImage.get_width()/6
+        position[1] -= self.smolMouthImage.get_width()/6 * self.mouthShiftRatio
+        self.screen.blit(result, position)
+
+        position[1] -= self.smolMouthImage.get_width()/6
+        position[1] += self.smolMouthImage.get_width()/6 * self.mouthShiftRatio
+        scale = [ result.get_width(), self.smolMouthTop.get_height() ]
+        mouthTop = pygame.transform.scale(self.smolMouthTop, scale)
+        self.screen.blit(mouthTop, position)
+
+
+        # SWEAT
+        self.screen.blit(self.smolSweatLeft, self.ur([589, 481], x=True, y=True))
+        self.screen.blit(self.smolSweatBottomLeft, self.ur([633, 577], x=True, y=True))
+        self.screen.blit(self.smolSweatBottomRight, self.ur([1275, 559], x=True, y=True))
+        self.screen.blit(self.smolSweatTopRight, self.ur([1221, 228], x=True, y=True))
 
     def showCalibrationFace(self):
         x1 = self.screen.get_width()/7
