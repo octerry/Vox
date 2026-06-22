@@ -345,7 +345,7 @@ class Main:
 
         ## Blood drop
         self.laughBlood = pygame.image.load("source/vox_laugh_blood.svg").convert_alpha()
-        self.laughBlood = pygame.transform.scale(self.laughBlood, self.ur([24, 407], x=True, y=True))
+        self.laughBlood = pygame.transform.scale(self.laughBlood, self.ur([76, 407], x=True, y=True))
 
     def importVideos(self):
         ## Noise video
@@ -894,9 +894,20 @@ class Main:
         result = self.laughMouthMask.copy()
         result.blit(self.laughMouthImage, (0, 0), None, pygame.BLEND_RGBA_MULT)
 
+        position = self.ur([1548, 430], x=True, y=True)
+        result.blit(self.laughBlood, position)
+
+        scale = [ result.get_width(), result.get_height() ]
+        scale[1] *= ( self.mouthShiftRatio * .5 ) + .5
+
+        result = pygame.transform.scale(result, scale)
+
         position = self.ur([113, 309], x=True, y=True)
         position[1] += faceDisplacement
+        position[1] += self.laughMouthMask.get_height()/5
+        position[1] -= self.laughMouthMask.get_height()/5 * (self.mouthShiftRatio)
         self.screen.blit(result, position)
+
 
     def run(self):
         while self.isRunning :
