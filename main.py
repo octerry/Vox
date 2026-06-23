@@ -191,38 +191,48 @@ class Main:
         self.defaultMouthBottom = pygame.transform.scale(self.defaultMouthBottom, self.ur([1756, 824], x=True, y=True))
 
     def importBlazedSprites(self):
-        # SPRITES DES YEUX
-        ## Oeuil Gauche Fond
+        # EYES
+        ## Left eye
         self.blazedLeftEyeImage = pygame.image.load("source/vox_blazed_lefteye_bg.svg").convert_alpha()
         self.blazedLeftEyeImage = pygame.transform.scale(self.blazedLeftEyeImage, self.ur([711, 223], x=True, y=True))
         self.blazedLeftEyeMask = pygame.image.load("source/vox_blazed_lefteye_mask.svg").convert_alpha()
         self.blazedLeftEyeMask = pygame.transform.scale(self.blazedLeftEyeMask, self.ur([711, 223], x=True, y=True))
 
-        ## Oeuil Gauche Contour
+        ## Left eye border
         self.blazedLeftEyeBorder = pygame.image.load("source/vox_blazed_lefteye_border.svg").convert_alpha()
         self.blazedLeftEyeBorder = pygame.transform.scale(self.blazedLeftEyeBorder, self.ur([711, 223], x=True, y=True))
 
-        ## Sourcil Droit
+        ## Left eyebrow
         self.blazedLeftEyebrow = pygame.image.load("source/vox_blazed_lefteyebrow.svg").convert_alpha()
         self.blazedLeftEyebrow = pygame.transform.scale(self.blazedLeftEyebrow, self.ur([719, 219], x=True, y=True))
 
-        ## Oeuil Droit Fond
+        ## Right eye
         self.blazedRightEyeImage = pygame.image.load("source/vox_blazed_righteye_bg.svg").convert_alpha()
         self.blazedRightEyeImage = pygame.transform.scale(self.blazedRightEyeImage, self.ur([734, 253], x=True, y=True))
         self.blazedRightEyeMask = pygame.image.load("source/vox_blazed_righteye_mask.svg").convert_alpha()
         self.blazedRightEyeMask = pygame.transform.scale(self.blazedRightEyeMask, self.ur([734, 253], x=True, y=True))
 
-        ## Oeuil Droit Contour
+        ## Right eye border
         self.blazedRightEyeBorder = pygame.image.load("source/vox_blazed_righteye_border.svg").convert_alpha()
         self.blazedRightEyeBorder = pygame.transform.scale(self.blazedRightEyeBorder, self.ur([734, 253], x=True, y=True))
 
-        ## Sourcil Droit
+        ## Right eyebrow
         self.blazedRightEyebrow = pygame.image.load("source/vox_blazed_righteyebrow.svg").convert_alpha()
         self.blazedRightEyebrow = pygame.transform.scale(self.blazedRightEyebrow, self.ur([735, 266], x=True, y=True))
 
-        ## Bouche
-        self.blazedMouthImage = pygame.image.load("source/vox_blazed_mouth.svg").convert_alpha()
-        self.blazedMouthImage = pygame.transform.scale(self.blazedMouthImage, self.ur([478, 224], x=True, y=True))
+        # MOUTH
+        self.blazedMouthImage = pygame.image.load("source/vox_blazed_mouth_bg.svg").convert_alpha()
+        self.blazedMouthImage = pygame.transform.scale(self.blazedMouthImage, self.ur([183, 148], x=True, y=True))
+        self.blazedMouthMask = pygame.image.load("source/vox_blazed_mouth_mask.svg").convert_alpha()
+        self.blazedMouthMask = pygame.transform.scale(self.blazedMouthMask, self.ur([183, 148], x=True, y=True))
+
+        ## Mouth border
+        self.blazedMouthBorder = pygame.image.load("source/vox_blazed_mouth_border.svg").convert_alpha()
+        self.blazedMouthBorder = pygame.transform.scale(self.blazedMouthBorder, self.ur([183, 148], x=True, y=True))
+
+        ## Mouth top
+        self.blazedMouthTop = pygame.image.load("source/vox_blazed_mouth_top.svg").convert_alpha()
+        self.blazedMouthTop = pygame.transform.scale(self.blazedMouthTop, self.ur([208, 130], x=True, y=True))
 
     def importDemonSprites(self):
         # SPRITES DES YEUX
@@ -607,7 +617,8 @@ class Main:
 
         faceDisplacement = self.eyeShiftRatioY * self.ur(80, y=True)
 
-        finalPupilImage = pygame.transform.rotate(self.defaultPupilImage, self.eyeShiftRatioX * 20)
+        spinValue = 180 if self.eyeShiftRatioY <= -.1 else 0
+        finalPupilImage = pygame.transform.rotate(self.defaultPupilImage, self.eyeShiftRatioX * 20 + spinValue)
 
         self.blazedLeftEyeImage.fill((255, 0, 66))
         self.blazedLeftEyeImage.blit(finalPupilImage, pupilPosition)
@@ -650,10 +661,38 @@ class Main:
 
 
         # MOUTH
-        position = [0,0]
-        position[0] = self.ur(658, x=True)
-        position[1] = self.screen.get_height() - self.ur(101, x=True) - self.blazedMouthImage.get_height() + faceDisplacement
-        self.screen.blit(self.blazedMouthImage, position)
+        mouthImage = self.blazedMouthImage.copy()
+        mouthImage.blit(self.blazedMouthBorder, (0, 0))
+
+        result = self.blazedMouthMask.copy()
+        result.blit(mouthImage, (0, 0), None, pygame.BLEND_MULT)
+
+        result = pygame.transform.rotate(result, 20)
+
+        scale = [ result.get_width(), result.get_height() ]
+        scale[1] *= self.mouthShiftRatio
+        result = pygame.transform.scale(result, scale)
+
+        result = pygame.transform.rotate(result, -20)
+
+        position = self.ur([736, 686], x=True, y=True)
+        position[0] += self.blazedMouthMask.get_width() / 1.2
+        position[0] -= result.get_width() / 1.8
+        position[1] += faceDisplacement
+        position[1] += self.blazedMouthMask.get_height() / 4
+        position[1] -= result.get_height() / 4
+        self.screen.blit(result, position)
+
+        scale = [ self.blazedMouthTop.get_width(), self.blazedMouthTop.get_height() ]
+        scale[0] *= 2 - self.mouthShiftRatio
+        scale[1] *= 2 - self.mouthShiftRatio
+        mouthTop = pygame.transform.scale(self.blazedMouthTop, scale)
+
+        position = self.ur([752, 706], x=True, y=True)
+        position[1] += faceDisplacement
+        position[0] -= mouthTop.get_width()/4
+        position[0] += self.blazedMouthTop.get_width()/4
+        self.screen.blit(mouthTop, position)
 
     def showHypnoticFace(self):
         self.screen.fill((255, 0, 66))
