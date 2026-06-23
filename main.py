@@ -6,13 +6,14 @@ class voxState(Enum):
     DEFAULT = 0
     BLAZED = 1
     FULLSCREENHYPNOSE = 2
-    MIKUVIDEO = 3
+    SMIRK = 3
     DEMON = 4
     HATE = 5
     DEI = 6
     LAUGH = 7
     MUTED = 8
     SMOL = 9
+    MIKUVIDEO = 10
     CALIBRATION = 64
 
 class Main:
@@ -127,6 +128,9 @@ class Main:
         self.importBlazedSprites()
         self.setLoadingScreenAt(0.3)
 
+        self.importSmirkSprites()
+        self.setLoadingScreenAt(0.35)
+
         self.importDemonSprites()
         self.setLoadingScreenAt(0.4)
 
@@ -233,6 +237,46 @@ class Main:
         ## Mouth top
         self.blazedMouthTop = pygame.image.load("source/vox_blazed_mouth_top.svg").convert_alpha()
         self.blazedMouthTop = pygame.transform.scale(self.blazedMouthTop, self.ur([208, 130], x=True, y=True))
+
+    def importSmirkSprites(self):
+        # EYES
+        ## Left eye
+        self.smirkLeftEyeMask = pygame.image.load("source/vox_smirk_lefteye_mask.svg").convert_alpha()
+        self.smirkLeftEyeMask = pygame.transform.scale(self.smirkLeftEyeMask, self.ur([744, 389], x=True, y=True))
+        self.smirkLeftEyeImage = pygame.Surface(self.smirkLeftEyeMask.get_size())
+
+        ## Left eye border
+        self.smirkLeftEyeBorder = pygame.image.load("source/vox_smirk_lefteye_border.svg").convert_alpha()
+        self.smirkLeftEyeBorder = pygame.transform.scale(self.smirkLeftEyeBorder, self.ur([744, 389], x=True, y=True))
+
+        ## Left eyebrow
+        self.smirkLeftEyebrow = pygame.image.load("source/vox_smirk_lefteyebrow.svg").convert_alpha()
+        self.smirkLeftEyebrow = pygame.transform.scale(self.smirkLeftEyebrow, self.ur([663, 398], x=True, y=True))
+
+        ## Right eye
+        self.smirkRightEyeMask = pygame.image.load("source/vox_smirk_righteye_mask.svg").convert_alpha()
+        self.smirkRightEyeMask = pygame.transform.scale(self.smirkRightEyeMask, self.ur([779, 330], x=True, y=True))
+        self.smirkRightEyeImage = pygame.Surface(self.smirkRightEyeMask.get_size())
+
+        ## Right eye border
+        self.smirkRightEyeBorder = pygame.image.load("source/vox_smirk_righteye_border.svg").convert_alpha()
+        self.smirkRightEyeBorder = pygame.transform.scale(self.smirkRightEyeBorder, self.ur([779, 330], x=True, y=True))
+
+        ## Right eyebrow
+        self.smirkRightEyebrow = pygame.image.load("source/vox_smirk_righteyebrow.svg").convert_alpha()
+        self.smirkRightEyebrow = pygame.transform.scale(self.smirkRightEyebrow, self.ur([743, 386], x=True, y=True))
+
+        # MOUTH
+        self.smirkMouthMask = pygame.image.load("source/vox_smirk_mouth_mask.svg").convert_alpha()
+        self.smirkMouthMask = pygame.transform.scale(self.smirkMouthMask, self.ur([1328, 876], x=True, y=True))
+        self.smirkMouthImage = pygame.image.load("source/vox_smirk_mouth_bg.svg").convert_alpha()
+        self.smirkMouthImage = pygame.transform.scale(self.smirkMouthImage, self.ur([1328, 876], x=True, y=True))
+
+        # Mouth borders
+        self.smirkMouthTop = pygame.image.load("source/vox_smirk_mouth_top.svg").convert_alpha()
+        self.smirkMouthTop = pygame.transform.scale(self.smirkMouthTop, self.ur([1706, 513], x=True, y=True))
+        self.smirkMouthBorder = pygame.image.load("source/vox_smirk_mouth_border.svg").convert_alpha()
+        self.smirkMouthBorder = pygame.transform.scale(self.smirkMouthBorder, self.ur([1328, 876], x=True, y=True))
 
     def importDemonSprites(self):
         # SPRITES DES YEUX
@@ -462,8 +506,7 @@ class Main:
                     case pygame.K_3 :
                         self.currentState = voxState.FULLSCREENHYPNOSE
                     case pygame.K_4 :
-                        self.currentState = voxState.MIKUVIDEO
-                        self.hatsuneVideo.resume()
+                        self.currentState = voxState.SMIRK
                     case pygame.K_5 :
                         self.currentState = voxState.DEMON
                     case pygame.K_6 :
@@ -476,6 +519,9 @@ class Main:
                         self.currentState = voxState.MUTED
                     case pygame.K_0 :
                         self.currentState = voxState.SMOL
+                    case pygame.K_m :
+                        self.currentState = voxState.MIKUVIDEO
+                        self.hatsuneVideo.resume()
                     case pygame.K_c :
                         self.currentState = voxState.CALIBRATION
 
@@ -496,8 +542,8 @@ class Main:
                 self.showBlazedFace()
             case voxState.FULLSCREENHYPNOSE:
                 self.showHypnoticFace()
-            case voxState.MIKUVIDEO:
-                self.showHatsuneMiku()
+            case voxState.SMIRK:
+                self.showSmirkFace()
             case voxState.DEMON:
                 self.showDemonFace()
             case voxState.HATE:
@@ -510,6 +556,8 @@ class Main:
                 self.showMutedFace()
             case voxState.SMOL:
                 self.showSmolFace()
+            case voxState.MIKUVIDEO:
+                self.showHatsuneMiku()
             case voxState.CALIBRATION:
                 self.showCalibrationFace()
 
@@ -536,9 +584,9 @@ class Main:
 
     def showDefaultFace(self):
         # LEFT EYE
-        pupilPosition = [self.defaultLeftEyeImage.get_width() / 2, self.defaultLeftEyeImage.get_height() / 2 - self.defaultPupilImage.get_height() / 2]
-        pupilPosition[0] += self.eyeShiftRatioX * (self.defaultLeftEyeImage.get_width() / 2) - self.defaultPupilImage.get_width()/2
-        pupilPosition[1] += self.eyeShiftRatioY * (self.defaultLeftEyeImage.get_height() / 2) - self.defaultPupilImage.get_height()/2
+        pupilPosition = [self.defaultLeftEyeImage.get_width() / 2, self.defaultLeftEyeImage.get_height() / 2]
+        pupilPosition[0] += self.eyeShiftRatioX * (self.defaultLeftEyeImage.get_width() / 3) + self.defaultPupilImage.get_width()
+        pupilPosition[1] += self.eyeShiftRatioY * (self.defaultLeftEyeImage.get_height() / 3)
 
         spinValue = 180 if self.eyeShiftRatioY <= .1 else 0
         finalPupilImage = pygame.transform.rotate(self.defaultPupilImage, self.eyeShiftRatioX * 20 + spinValue)
@@ -563,9 +611,9 @@ class Main:
 
 
         # RIGHT EYE
-        pupilPosition = [self.defaultRightEyeImage.get_width() / 2, self.defaultRightEyeImage.get_height() / 2 - self.defaultPupilImage.get_height() / 2]
-        pupilPosition[0] += self.eyeShiftRatioX * (self.defaultRightEyeImage.get_width() / 2) - self.defaultPupilImage.get_width()/2
-        pupilPosition[1] += self.eyeShiftRatioY * (self.defaultRightEyeImage.get_height() / 2) - self.defaultPupilImage.get_height()/2
+        pupilPosition = [self.defaultRightEyeImage.get_width() / 2, self.defaultRightEyeImage.get_height() / 2]
+        pupilPosition[0] += self.eyeShiftRatioX * (self.defaultRightEyeImage.get_width() / 3) - self.defaultPupilImage.get_width()
+        pupilPosition[1] += self.eyeShiftRatioY * (self.defaultRightEyeImage.get_height() / 3)
 
         self.defaultRightEyeImage.fill((255, 0, 66))
         self.defaultRightEyeImage.blit(finalPupilImage, pupilPosition)
@@ -675,7 +723,7 @@ class Main:
 
         result = pygame.transform.rotate(result, -20)
 
-        position = self.ur([736, 686], x=True, y=True)
+        position = self.ur([736, 676], x=True, y=True)
         position[0] += self.blazedMouthMask.get_width() / 1.2
         position[0] -= result.get_width() / 1.8
         position[1] += faceDisplacement
@@ -711,8 +759,86 @@ class Main:
 
         self.screen.blit(self.hypnosisPupil, (self.screen.get_width()/2 - self.hypnosisPupil.get_width()/2, self.screen.get_height()/2 - self.hypnosisPupil.get_height()/2))
 
-    def showHatsuneMiku(self):
-        self.hatsuneVideo.draw(self.screen, (0,0))
+    def showSmirkFace(self):
+        # LEFT EYE
+        pupilPosition = [self.smirkLeftEyeImage.get_width() / 2, self.smirkLeftEyeImage.get_height() / 2]
+        pupilPosition[0] += self.eyeShiftRatioX * (self.smirkLeftEyeImage.get_width() / 4) + self.defaultPupilImage.get_width()
+        pupilPosition[1] += self.eyeShiftRatioY * (self.smirkLeftEyeImage.get_height() / 4)
+
+        faceDisplacement = self.eyeShiftRatioY * self.ur(80, y=True)
+
+        spinValue = 180 if self.eyeShiftRatioY <= .1 else 0
+        finalPupilImage = pygame.transform.rotate(self.defaultPupilImage, self.eyeShiftRatioX * 20 + spinValue)
+
+        self.smirkLeftEyeImage.fill((255, 0, 66))
+        self.smirkLeftEyeImage.blit(finalPupilImage, pupilPosition)
+        self.smirkLeftEyeImage.blit(self.smirkLeftEyeBorder, (0,0))
+
+        result = self.smirkLeftEyeMask.copy()
+        result.blit(self.smirkLeftEyeImage, (0, 0), None, pygame.BLEND_MULT)
+
+        position = self.ur([234, 160], x=True, y=True)
+        position[1] += faceDisplacement
+        self.screen.blit(result, position)
+
+        position = self.ur([356, 54], x=True, y=True)
+        position[1] += faceDisplacement
+        self.screen.blit(self.smirkLeftEyebrow, position)
+
+
+        # RIGHT EYE
+        pupilPosition = [self.smirkRightEyeImage.get_width() / 2, self.smirkRightEyeImage.get_height() / 2]
+        pupilPosition[0] += self.eyeShiftRatioX * (self.smirkLeftEyeImage.get_width() / 4) - self.defaultPupilImage.get_width()
+        pupilPosition[1] += self.eyeShiftRatioY * (self.smirkLeftEyeImage.get_height() / 4) - self.defaultPupilImage.get_height()/2
+
+        self.smirkRightEyeImage.fill((255, 0, 66))
+        self.smirkRightEyeImage.blit(finalPupilImage, pupilPosition)
+        self.smirkRightEyeImage.blit(self.smirkRightEyeBorder, (0,0))
+
+        result = self.smirkRightEyeMask.copy()
+        result.blit(self.smirkRightEyeImage, (0, 0), None, pygame.BLEND_MULT)
+
+        position = self.ur([1089, 253], x=True, y=True)
+        position[1] += faceDisplacement
+        self.screen.blit(result, position)
+
+        position = self.ur([1089, 66], x=True, y=True)
+        position[1] += faceDisplacement
+        self.screen.blit(self.smirkRightEyebrow, position)
+
+
+        # MOUTH
+        mouthImage = self.smirkMouthImage.copy()
+        mouthImage.blit(self.smirkMouthBorder, (0,0))
+
+        newMouthImage = self.smirkMouthMask.copy()
+        newMouthImage.blit(mouthImage, (0, 0), None, pygame.BLEND_RGBA_MULT)
+
+        scale = [ newMouthImage.get_width(), newMouthImage.get_height() ]
+        scale[1] *= self.mouthShiftRatio
+        newMouthImage = pygame.transform.scale(newMouthImage, scale)
+
+        finalMouthImage = self.smirkMouthMask.copy()
+        finalMouthImage.blit(newMouthImage.copy(), (0, 0), None, pygame.BLEND_RGBA_MULT)
+        finalMouthImage.set_colorkey((255,255,255))
+
+        result = pygame.Surface(self.ur([1706, 1088], x=True, y=True), pygame.SRCALPHA)
+        result.blit(finalMouthImage, self.ur([143, 215], x=True, y=True))
+        result.blit(self.smirkMouthTop, (0,0))
+
+        scale = [ result.get_width(), result.get_height() ]
+        scale[0] *= 1 - ( self.mouthShiftRatio * .5 )
+        scale[1] *= 1 - ( self.mouthShiftRatio * .7 )
+        result = pygame.transform.scale(result, scale)
+
+        position = self.ur([167, 418], x=True, y=True)
+        position[0] += self.smirkMouthTop.get_width()/2
+        position[0] -= result.get_width()/2
+        position[1] += faceDisplacement
+        position[1] += self.ur(1088, y=True)/4
+        position[1] -= result.get_height()/4
+        self.screen.blit(result, position)
+
 
     def showDemonFace(self):
         # DOWN EYE
@@ -1128,6 +1254,9 @@ class Main:
         self.screen.blit(self.smolSweatBottomLeft, self.ur([633, 577], x=True, y=True))
         self.screen.blit(self.smolSweatBottomRight, self.ur([1275, 559], x=True, y=True))
         self.screen.blit(self.smolSweatTopRight, self.ur([1221, 228], x=True, y=True))
+
+    def showHatsuneMiku(self):
+        self.hatsuneVideo.draw(self.screen, (0,0))
 
     def showCalibrationFace(self):
         x1 = self.screen.get_width()/7
