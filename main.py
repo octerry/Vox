@@ -1083,7 +1083,7 @@ class Main:
         newHypnosisPupil = pygame.transform.rotate(self.hypnosisPupil, angle)
         hateEye.blit(newHypnosisPupil, (center[0] - self.hypnosisPupil.get_width()/2, center[1] - self.hypnosisPupil.get_height()/2))
 
-        hateEye.blit(self.hateEyeBorder)
+        hateEye.blit(self.hateEyeBorder, (0,0))
 
         result = self.hateEyeMask.copy()
         result.blit(hateEye, (0, 0), None, pygame.BLEND_RGBA_MULT)
