@@ -13,8 +13,9 @@ class voxState(Enum):
     LAUGH = 7
     ANGRY = 8
     SMOL = 9
-    MIKUVIDEO = 10
-    MUTED = 11
+    FLABBERGASTED = 10
+    MIKUVIDEO = 62
+    MUTED = 63
     CALIBRATION = 64
 
 class Main:
@@ -152,6 +153,9 @@ class Main:
 
         self.importMutedSprites()
         self.setLoadingScreenAt(0.95)
+
+        self.importFlabbergastedSprites()
+        self.setLoadingScreenAt(1)
 
     def importDefaultSprites(self):
         # YEUX
@@ -462,7 +466,6 @@ class Main:
         self.angryTeethBottom = pygame.image.load("source/vox_angry_mouth_bottomtooth.svg").convert_alpha()
         self.angryTeethBottom = pygame.transform.scale(self.angryTeethBottom, self.ur([2250,802], x=True, y=True))
 
-
     def importSmolSprites(self):
         # EYES
         ## Left eye
@@ -523,11 +526,66 @@ class Main:
         self.smolMouthBottom = pygame.image.load("source/vox_small_mouth_bottom.svg").convert_alpha()
         self.smolMouthBottom = pygame.transform.scale(self.smolMouthBottom, self.ur([72, 86], x=True, y=True))
 
+    def importFlabbergastedSprites(self):
+        # EYES
+        ## Left eye
+        self.fgLeftEyeMask = pygame.image.load("source/vox_fg_lefteye_mask.svg").convert_alpha()
+        self.fgLeftEyeMask = pygame.transform.scale(self.fgLeftEyeMask, self.ur([827, 566], x=True, y=True))
+        self.fgLeftEyeImage = pygame.Surface(self.fgLeftEyeMask.get_size())
+
+        ## Left eye border
+        self.fgLeftEyeBorder = pygame.image.load("source/vox_fg_lefteye_border.svg").convert_alpha()
+        self.fgLeftEyeBorder = pygame.transform.scale(self.fgLeftEyeBorder, self.ur([827, 566], x=True, y=True))
+
+        ## Left eyebrow
+        self.fgLeftEyebrow = pygame.image.load("source/vox_fg_lefteyebrow.svg").convert_alpha()
+        self.fgLeftEyebrow = pygame.transform.scale(self.fgLeftEyebrow, self.ur([768, 222], x=True, y=True))
+
+        ## Left eye dark circle
+        self.fgLeftDarkCircle = pygame.image.load("source/vox_fg_leftdarkcircle.svg").convert_alpha()
+        self.fgLeftDarkCircle = pygame.transform.scale(self.fgLeftDarkCircle, self.ur([163, 150], x=True, y=True))
+
+        ## Right eye
+        self.fgRightEyeMask = pygame.image.load("source/vox_fg_righteye_mask.svg").convert_alpha()
+        self.fgRightEyeMask = pygame.transform.scale(self.fgRightEyeMask, self.ur([822, 566], x=True, y=True))
+        self.fgRightEyeImage = pygame.Surface(self.fgRightEyeMask.get_size())
+
+        ## Right eye border
+        self.fgRightEyeBorder = pygame.image.load("source/vox_fg_righteye_border.svg").convert_alpha()
+        self.fgRightEyeBorder = pygame.transform.scale(self.fgRightEyeBorder, self.ur([822, 566], x=True, y=True))
+
+        ## Right eyebrow
+        self.fgRightEyebrow = pygame.image.load("source/vox_fg_righteyebrow.svg").convert_alpha()
+        self.fgRightEyebrow = pygame.transform.scale(self.fgRightEyebrow, self.ur([760, 222], x=True, y=True))
+
+        ## Right eye dark circle
+        self.fgRightDarkCircle = pygame.image.load("source/vox_fg_rightdarkcircle.svg").convert_alpha()
+        self.fgRightDarkCircle = pygame.transform.scale(self.fgRightDarkCircle, self.ur([159, 150], x=True, y=True))
+
+        ## Pupil
+        self.fgPupil = pygame.image.load("source/vox_fg_pupil.svg").convert_alpha()
+        self.fgPupil = pygame.transform.scale(self.fgPupil, self.ur([59, 57], x=True, y=True))
+
+        # MOUTH
+        self.fgMouthMask = pygame.image.load("source/vox_fg_mouth_mask.svg").convert_alpha()
+        self.fgMouthMask = pygame.transform.scale(self.fgMouthMask, self.ur([1405, 344], x=True, y=True))
+        self.fgMouthImage = pygame.image.load("source/vox_fg_mouth_bg.svg").convert_alpha()
+        self.fgMouthImage = pygame.transform.scale(self.fgMouthImage, self.ur([1405, 344], x=True, y=True))
+
+        ## Mouth border
+        self.fgMouthBorder = pygame.image.load("source/vox_fg_mouth_border.svg").convert_alpha()
+        self.fgMouthBorder = pygame.transform.scale(self.fgMouthBorder, self.ur([1405, 344], x=True, y=True))
+
+        ## Teeth
+        self.fgTeethTop = pygame.image.load("source/vox_fg_upteeth.svg").convert_alpha()
+        self.fgTeethTop = pygame.transform.scale(self.fgTeethTop, self.ur([1287, 306], x=True, y=True))
+        self.fgTeethBottom = pygame.image.load("source/vox_fg_bottomteeth.svg").convert_alpha()
+        self.fgTeethBottom = pygame.transform.scale(self.fgTeethBottom, self.ur([1405, 344], x=True, y=True))
+
     def importMutedSprites(self):
         # MUTE SYMBOL
         self.mutedImage = pygame.image.load("source/vox_muted.svg").convert_alpha()
         self.mutedImage = pygame.transform.scale(self.mutedImage, self.ur([980, 980], x=True, y=True))
-
 
     def importVideos(self):
         ## Noise video
@@ -575,6 +633,8 @@ class Main:
                         self.currentState = voxState.SMOL
                     case pygame.K_a :
                         self.currentState = voxState.MUTED
+                    case pygame.K_RIGHTPAREN :
+                        self.currentState = voxState.FLABBERGASTED
                     case pygame.K_z :
                         self.currentState = voxState.MIKUVIDEO
                         self.hatsuneVideo.resume()
@@ -612,6 +672,8 @@ class Main:
                 self.showAngryFace()
             case voxState.SMOL:
                 self.showSmolFace()
+            case voxState.FLABBERGASTED:
+                self.showFlabbergasterFace()
             case voxState.MUTED:
                 self.showMutedFace()
             case voxState.MIKUVIDEO:
@@ -1306,7 +1368,6 @@ class Main:
         position[1] += faceDisplacement
         self.screen.blit(self.angryRightEyebrow, position)
 
-
     def showSmolFace(self):
         # LEFT EYE
         pupilPosition = [self.smolLeftEyeMask.get_width()/2, self.smolLeftEyeMask.get_height()/2]
@@ -1397,6 +1458,85 @@ class Main:
         self.screen.blit(self.smolSweatBottomLeft, self.ur([633, 577], x=True, y=True))
         self.screen.blit(self.smolSweatBottomRight, self.ur([1275, 559], x=True, y=True))
         self.screen.blit(self.smolSweatTopRight, self.ur([1221, 228], x=True, y=True))
+
+    def showFlabbergasterFace(self):
+        # LEFT EYE
+        pupilPosition = [self.fgLeftEyeMask.get_width()/2, self.fgLeftEyeMask.get_height()/2]
+        pupilPosition[0] += self.eyeShiftRatioX * (self.fgLeftEyeMask.get_width() / 4) + self.fgPupil.get_width()
+        pupilPosition[1] += self.eyeShiftRatioY * (self.fgLeftEyeMask.get_height() / 5) - self.fgPupil.get_height()
+
+        faceDisplacement = self.eyeShiftRatioY * self.ur(80, y=True)
+
+        self.fgLeftEyeImage.fill((255, 0, 66))
+        self.fgLeftEyeImage.blit(self.fgPupil, pupilPosition)
+        self.fgLeftEyeImage.blit(self.fgLeftEyeBorder, (0,0))
+
+        result = self.fgLeftEyeMask.copy()
+        result.blit(self.fgLeftEyeImage, (0, 0), None, pygame.BLEND_RGBA_MULT)
+
+        position = self.ur([133,175], x=True, y=True)
+        position[1] += faceDisplacement
+        self.screen.blit(result, position)
+
+        position = self.ur([133, -45], x=True, y=True)
+        position[1] += faceDisplacement
+        self.screen.blit(self.fgLeftEyebrow, position)
+
+        position = self.ur([786, 553], x=True, y=True)
+        position[1] += faceDisplacement
+        self.screen.blit(self.fgLeftDarkCircle, position)
+
+
+        # RIGHT EYE
+        pupilPosition = [self.fgLeftEyeMask.get_width()/2, self.fgLeftEyeMask.get_height()/2]
+        pupilPosition[0] += self.eyeShiftRatioX * (self.fgLeftEyeMask.get_width() / 4) - self.fgPupil.get_width()
+        pupilPosition[1] += self.eyeShiftRatioY * (self.fgLeftEyeMask.get_height() / 5) - self.fgPupil.get_height()
+
+        finalPupil = pygame.transform.rotate(self.fgPupil, 90)
+
+        self.fgRightEyeImage.fill((255, 0, 66))
+        self.fgRightEyeImage.blit(finalPupil, pupilPosition)
+        self.fgRightEyeImage.blit(self.fgRightEyeBorder, (0,0))
+
+        result = self.fgRightEyeMask.copy()
+        result.blit(self.fgRightEyeImage, (0, 0), None, pygame.BLEND_RGBA_MULT)
+
+        position = self.ur([1033,175], x=True, y=True)
+        position[1] += faceDisplacement
+        self.screen.blit(result, position)
+
+        position = self.ur([1064,-45], x=True, y=True)
+        position[1] += faceDisplacement
+        self.screen.blit(self.fgRightEyebrow, position)
+
+        position = self.ur([1043, 553], x=True, y=True)
+        position[1] += faceDisplacement
+        self.screen.blit(self.fgRightDarkCircle, position)
+
+
+        # MOUTH
+        mouthImage = self.fgMouthImage.copy()
+
+        position = [ self.ur(65, x=True) ,0]
+        position[1] -= self.fgTeethTop.get_height() * self.mouthShiftRatio * .3
+        mouthImage.blit(self.fgTeethTop, position)
+
+        position = [ 0, mouthImage.get_height() - self.fgTeethBottom.get_height() ]
+        position[1] += self.fgTeethTop.get_height() * self.mouthShiftRatio * .6
+        mouthImage.blit(self.fgTeethBottom, position)
+
+        mouthImage.blit(self.fgMouthBorder, (0,0))
+
+        result = self.fgMouthMask.copy()
+        result.blit(mouthImage, (0, 0), None, pygame.BLEND_RGBA_MULT)
+
+        scale = [ result.get_width(), result.get_height() ]
+        scale[1] *= self.mouthShiftRatio * .3 + .7
+        result = pygame.transform.scale(result, scale)
+
+        position = self.ur([849,786], x=True, y=True)
+        position[1] += faceDisplacement
+        self.screen.blit(result, position)
 
     def showMutedFace(self):
         # MUTE SYMBOL
