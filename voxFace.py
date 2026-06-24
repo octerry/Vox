@@ -1600,9 +1600,9 @@ pygame.init()
 # à la fin faudra mettre (0,0) pour le fullscreen
 # c'est en 16:9
 # screen = pygame.display.set_mode((800, 450))
-screen = pygame.display.set_mode((1920, 1080))
-# screen = pygame.display.set_mode((0, 0))
-instance = Main(screen)
+# screen = pygame.display.set_mode((1920, 1080))
+screen = pygame.display.set_mode((0, 0))
+instance = Main(screen)     
 instance.run()
 
 pygame.quit()
