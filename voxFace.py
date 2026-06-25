@@ -1,3 +1,7 @@
+# https://github.com/octerry/Vox
+# Code by Octerry
+# Made On Earth By Humans
+
 import pygame, math
 from pyvidplayer2 import Video
 from enum import Enum
