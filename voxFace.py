@@ -47,8 +47,6 @@ class Main:
         self.hateGradientSurface = None
         self.hateGradientBounds = None
 
-        self.pixelFilter = pygame.Surface((self.screen.get_width(), self.screen.get_height()), pygame.SRCALPHA)
-
         self.setLoadingScreenAt(.02)
         self.backgroundSetup()
 
@@ -112,14 +110,6 @@ class Main:
             color = (0, 0, 0, int(opacity))
             pygame.draw.circle(self.hateGradientSurface, color, center, radius)
         self.setLoadingScreenAt(.2)
-
-        # LE FILTRE PIXEL POUR DEI
-        self.pixelFilter.fill((126,187,117,60))
-        for x in range(self.screen.get_width()):
-            for y in range(self.screen.get_height()):
-                if x % int(self.ur(5, x=True)) == 0 and y % int(self.ur(5, y=True)) == 0:
-                    self.pixelFilter.set_at((x, y), (255,255,255))
-        self.setLoadingScreenAt(.21)
 
     def importSprites(self):
         ## Eclair d'hypnose
@@ -688,9 +678,6 @@ class Main:
 
         # CONTOUR ROUGE
         pygame.draw.rect(self.screen, (214, 28, 41), (0, 0, self.screen.get_width(), self.screen.get_height()), int(self.ur(10, y=True)))
-
-        if self.currentState == voxState.DEI:
-            self.screen.blit(self.pixelFilter, (0,0), None, pygame.BLEND_RGBA_MULT)
 
         # Afficher les changements
         pygame.display.update()
